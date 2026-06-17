@@ -31,26 +31,18 @@
             overflow-x: hidden;
         }
 
-        /* Декоративный неоновый бэкграунд */
         body::before, body::after {
             content: ""; position: absolute; width: 350px; height: 350px; border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(80px);
         }
         body::before { top: -5%; right: -5%; background: radial-gradient(circle, rgba(214, 26, 76, 0.08) 0%, rgba(0,0,0,0) 70%); }
         body::after { bottom: -5%; left: -5%; background: radial-gradient(circle, rgba(0, 119, 255, 0.04) 0%, rgba(0,0,0,0) 70%); }
 
-        .view-container {
-            width: 100%;
-            max-width: 1100px;
-            z-index: 1;
-            display: none; 
-            animation: fadeIn 0.3s ease forwards;
-        }
+        .view-container { width: 100%; max-width: 1100px; z-index: 1; display: none; animation: fadeIn 0.3s ease forwards; }
         .view-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         #auth-view { width: 100%; max-width: 420px; margin: 10vh auto; }
 
-        /* Карточки */
         .card { 
             background: var(--bg-card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); 
             border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; 
@@ -58,7 +50,6 @@
         }
         .card-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 20px; }
 
-        /* Формы */
         .form-group { margin-bottom: 16px; position: relative; }
         .form-group label { display: block; font-size: 13px; color: #aeaeb2; margin-bottom: 6px; font-weight: 500; }
         .form-control { 
@@ -67,7 +58,6 @@
         }
         .form-control:focus { outline: none; border-color: rgba(214, 26, 76, 0.5); background: rgba(0,0,0, 0.5); }
         
-        /* Индикатор надежности пароля */
         .pass-strength { height: 4px; width: 100%; background: rgba(255,255,255,0.05); margin-top: 6px; border-radius: 2px; overflow: hidden; display: none; }
         .pass-strength-bar { height: 100%; width: 0%; transition: all 0.3s; background: #ff453a; }
 
@@ -82,31 +72,26 @@
         .auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
         .auth-switch span { color: var(--primary); cursor: pointer; font-weight: 600; }
 
-        /* Верхняя панель Навигации */
         .app-navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .app-navbar h1 { font-size: 20px; font-weight: 700; color: #fff; }
         .nav-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
         .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .tab-btn.active { background: rgba(255,255,255,0.06); color: #fff; }
 
-        /* Виджеты Статистики (Новое) */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; }
         .stat-box p { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .stat-box h3 { font-size: 22px; color: #fff; font-weight: 700; }
 
-        /* Сетка контента */
         .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Лидерборд */
         .leaderboard-table { width: 100%; border-collapse: collapse; }
         .leaderboard-table th { color: #636366; font-size: 11px; font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; text-align: left;}
         .leaderboard-table td { padding: 12px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); text-align: left; }
         .points-badge { background: rgba(48, 209, 88, 0.1); border: 1px solid rgba(48, 209, 88, 0.2); padding: 3px 8px; border-radius: 6px; font-weight: 600; color: var(--success); font-size: 12px; }
 
-        /* Уведомления */
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: rgba(20, 20, 22, 0.95); border: 1px solid var(--border-color); backdrop-filter: blur(12px);
@@ -115,13 +100,11 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* Настройки (Новое) */
         .settings-list { display: flex; flex-direction: column; gap: 16px; }
         .settings-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .settings-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 20px; }
+        .settings-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
         .settings-info p { font-size: 12px; color: var(--text-muted); }
 
-        /* Универсальный адаптивный дизайн для любых экранов */
         @media (max-width: 900px) {
             .grid-layout { grid-template-columns: 1fr; gap: 16px; }
             .app-navbar { flex-direction: column; gap: 14px; align-items: flex-start; }
@@ -140,6 +123,7 @@
 
     <div id="toast">Уведомление</div>
 
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-view" class="view-container active">
         <div class="card">
             <h2 id="auth-title" style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 700;">Вход в Workspace</h2>
@@ -165,6 +149,7 @@
         </div>
     </div>
 
+    <!-- ОСНОВНОЙ ЭКРАН -->
     <div id="dashboard-view" class="view-container">
         
         <div class="app-navbar">
@@ -261,35 +246,30 @@
 
     </div>
 
+    <!-- С К Р И П Т Ы -->
     <script>
-        // БАЗА ДАННЫХ (НЕ ТРОГАЕМ)
         const SUPABASE_URL = "https://jdrepnjvvyzaiohihvvw.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcmVwbmp2dnl6YWlvaGlodnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDczODUsImV4cCI6MjA5NzI4MzM4NX0.Byex7T_qRiiVBmFMD3QeS8tALx5k1ZIV34O2QDrjjbI";
-        
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let isRegisterMode = false;
         let currentUserData = null;
 
-        // Всплывающие уведомления
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.innerText = message;
-            toast.style.borderLeft = isError ? "4px solid #ff453a" : "4px solid var(--success)";
+            toast.style.borderLeft = isError ? "4px solid #ff453a" : "4px solid #30d158";
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3500);
         }
 
-        // Переключение вкладок на панели
         function switchTab(tabId, buttonEl) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             buttonEl.classList.add('active');
         }
 
-        // Переключение Логин / Регистрация
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
             document.getElementById('auth-title').innerText = isRegisterMode ? 'Создать профиль' : 'Вход в Workspace';
@@ -300,12 +280,10 @@
                 : 'Впервые тут? <span onclick="toggleAuthMode()">Создать аккаунт</span>';
         }
 
-        // Проверка сложности пароля "на лету"
         document.getElementById('auth-pass').addEventListener('input', function(e) {
             if (!isRegisterMode) return;
             const pass = e.target.value;
             const bar = document.getElementById('pass-bar');
-            
             let score = 0;
             if (pass.length >= 8) score++;
             if (/[a-zA-Z]/.test(pass)) score++;
@@ -313,27 +291,33 @@
 
             if (score === 1) { bar.style.width = '33%'; bar.style.backgroundColor = '#ff453a'; }
             else if (score === 2) { bar.style.width = '66%'; bar.style.backgroundColor = '#ff9f0a'; }
-            else if (score === 3) { bar.style.width = '100%'; bar.style.backgroundColor = var(--success); }
+            else if (score === 3) { bar.style.width = '100%'; bar.style.backgroundColor = '#30d158'; }
             else { bar.style.width = '0%'; }
         });
 
-        // Проверка текущей сессии
+        function showAuthView() {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('auth-view').classList.add('active');
+        }
+
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                const { data: profile } = await supabaseClient.from('assistants').select('*').eq('id', session.user.id).single();
+                const { data: profile, error } = await supabaseClient.from('assistants').select('*').eq('id', session.user.id).single();
+                
                 if (profile) {
                     currentUserData = profile;
-                    
-                    // Обновляем шапку и блоки со статами
                     document.getElementById('current-user-name').innerText = profile.name;
-                    document.getElementById('stat-xp').innerText = `${profile.points} XP`;
-                    document.getElementById('stat-tasks').innerText = `${profile.tasks_count} шт`;
+                    document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
+                    document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
                     
                     document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
                     document.getElementById('dashboard-view').classList.add('active');
                     loadLeaderboard();
                 } else {
+                    // ЕСЛИ БАЗА ОТВЕРГЛА СОЗДАНИЕ ПРОФИЛЯ
+                    await supabaseClient.auth.signOut();
+                    showToast('Сбой БД. Отключите RLS в Supabase.', true);
                     showAuthView();
                 }
             } else {
@@ -341,12 +325,6 @@
             }
         }
 
-        function showAuthView() {
-            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            document.getElementById('auth-view').classList.add('active');
-        }
-
-        // Форма авторизации / регистрации
         document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('auth-btn');
@@ -355,46 +333,47 @@
             const rawName = document.getElementById('auth-name').value.trim();
             const password = document.getElementById('auth-pass').value;
             
-            // Превращаем никнейм во внутренний виртуальный email
-            const systemEmail = `${rawName.toLowerCase()}@civil.team`;
+            // Защита от пробелов в нике: Kirill Sky превратится в kirill_sky@civil.team
+            const safeName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+            const systemEmail = `${safeName}@civil.team`;
 
             try {
                 if (isRegisterMode) {
-                    // Валидация надежности перед отправкой на сервер
                     if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-                        throw new Error('Пароль слишком простой! Требуется от 8 символов, букв и цифр.');
+                        throw new Error('Слабый пароль! Нужно от 8 символов, буквы и цифры.');
                     }
 
                     const { data, error } = await supabaseClient.auth.signUp({ email: systemEmail, password });
-                    if (error) throw error;
+                    if (error) throw new Error('Ошибка Supabase: ' + error.message);
                     
                     if (data.user) {
-                        await supabaseClient.from('assistants').insert([
-                            { id: data.user.id, email: systemEmail, name: rawName }
+                        const { error: dbError } = await supabaseClient.from('assistants').insert([
+                            { id: data.user.id, email: systemEmail, name: rawName, points: 0, tasks_count: 0 }
                         ]);
+                        // Если RLS включен, скрипт теперь закричит об этом
+                        if (dbError) throw new Error('БД заблокировала запись. Отключи RLS!');
                     }
                     showToast('Успешная регистрация!');
                 } else {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email: systemEmail, password });
-                    if (error) throw error;
+                    if (error) throw new Error('Неверный никнейм или пароль');
                     showToast('Вы авторизовались.');
                 }
-                setTimeout(checkSession, 400); 
+                setTimeout(checkSession, 500); 
             } catch (err) {
+                // ВЫВОДИМ ОШИБКУ НА ЭКРАН
                 showToast(err.message, true);
             } finally {
                 btn.disabled = false;
             }
         });
 
-        // Выход
         async function logOut() {
             await supabaseClient.auth.signOut();
             currentUserData = null;
             showAuthView();
         }
 
-        // Загрузка топа (С исключением тебя из вывода)
         async function loadLeaderboard() {
             const { data: assistants, error } = await supabaseClient
                 .from('assistants')
@@ -409,10 +388,7 @@
             let displayIndex = 1;
 
             assistants.forEach((user) => {
-                // КРИТИЧЕСКОЕ ИСКЛЮЧЕНИЕ: Твой аккаунт не рендерится в таблице лидеров
-                if (currentUserData && currentUserData.id === user.id) {
-                    return; 
-                }
+                if (currentUserData && currentUserData.id === user.id) return; 
 
                 let medal = displayIndex === 1 ? '🥇' : displayIndex === 2 ? '🥈' : displayIndex === 3 ? '🥉' : `<span style="color:#636366">${displayIndex}</span>`;
                 
@@ -420,19 +396,18 @@
                     <tr>
                         <td>${medal}</td>
                         <td style="font-weight: 600; color: #fff;">${user.name}</td>
-                        <td>${user.tasks_count}</td>
-                        <td style="text-align: right;"><span class="points-badge">+${user.points} XP</span></td>
+                        <td>${user.tasks_count || 0}</td>
+                        <td style="text-align: right;"><span class="points-badge">+${user.points || 0} XP</span></td>
                     </tr>
                 `;
                 displayIndex++;
             });
 
             if(tbody.innerHTML === '') {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Список ассистентов пуст</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Список пуст</td></tr>`;
             }
         }
 
-        // Отправка выполненной работы
         document.getElementById('work-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUserData) return showToast('Ошибка авторизации', true);
@@ -455,14 +430,13 @@
                 }]);
 
                 await supabaseClient.from('assistants').update({ 
-                    points: currentUserData.points + pointsToAdd, 
-                    tasks_count: currentUserData.tasks_count + 1 
+                    points: (currentUserData.points || 0) + pointsToAdd, 
+                    tasks_count: (currentUserData.tasks_count || 0) + 1 
                 }).eq('id', currentUserData.id);
 
-                currentUserData.points += pointsToAdd;
-                currentUserData.tasks_count += 1;
+                currentUserData.points = (currentUserData.points || 0) + pointsToAdd;
+                currentUserData.tasks_count = (currentUserData.tasks_count || 0) + 1;
                 
-                // Моментально обновляем виджеты на экране
                 document.getElementById('stat-xp').innerText = `${currentUserData.points} XP`;
                 document.getElementById('stat-tasks').innerText = `${currentUserData.tasks_count} шт`;
                 
@@ -473,11 +447,9 @@
                 showToast('Ошибка транзакции: ' + err.message, true);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Отправить в реестр';
             }
         });
 
-        // Старт системы
         checkSession();
     </script>
 </body>
