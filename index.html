@@ -104,19 +104,13 @@
             .app-navbar { flex-direction: column; gap: 14px; align-items: flex-start; }
             .app-navbar .nav-tabs { width: 100%; justify-content: space-around; }
         }
-        @media (max-width: 480px) {
-            body { padding: 12px; }
-            .card { padding: 16px; border-radius: 12px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-box h3 { font-size: 18px; }
-            .leaderboard-table th:nth-child(3), .leaderboard-table td:nth-child(3) { display: none; }
-        }
     </style>
 </head>
 <body>
 
     <div id="toast">Уведомление</div>
 
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-view" class="view-container active">
         <div class="card">
             <h2 id="auth-title" style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 700;">Вход в Workspace</h2>
@@ -142,6 +136,7 @@
         </div>
     </div>
 
+    <!-- ОСНОВНОЙ ЭКРАН -->
     <div id="dashboard-view" class="view-container">
         <div class="app-navbar">
             <div>
@@ -236,6 +231,7 @@
         </div>
     </div>
 
+    <!-- С К Р И П Т Ы -->
     <script>
         const SUPABASE_URL = "https://jdrepnjvvyzaiohihvvw.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcmVwbmp2dnl6YWlvaGlodnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDczODUsImV4cCI6MjA5NzI4MzM4NX0.Byex7T_qRiiVBmFMD3QeS8tALx5k1ZIV34O2QDrjjbI";
@@ -249,7 +245,7 @@
             toast.innerText = message;
             toast.style.borderLeft = isError ? "4px solid #ff453a" : "4px solid #30d158";
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3500);
+            setTimeout(() => toast.classList.remove('show'), 4500);
         }
 
         function switchTab(tabId, buttonEl) {
@@ -289,31 +285,47 @@
             document.getElementById('auth-view').classList.add('active');
         }
 
-        // === ОБНОВЛЕННАЯ СТРОГАЯ ПРОВЕРКА СЕССИИ И АВТОМАТИЗАЦИЯ РОЛИ ===
+        // УМНАЯ ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ)
         async function checkSession() {
             const authBtn = document.getElementById('auth-btn');
             authBtn.disabled = true;
 
             try {
                 const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-                if (authError || !user) throw new Error('Пользователь не авторизован');
+                if (authError || !user) throw new Error('NOT_AUTH'); 
 
-                const { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
-                if (dbError || !profile) throw new Error('Профиль удален из базы');
+                let { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
+                
+                // АВТОВОССТАНОВЛЕНИЕ АККАУНТА (если в Auth ты есть, а в таблице тебя нет)
+                if (dbError || !profile) {
+                    // Достаем ник из почты (например kirill_sky из kirill_sky@civil.team)
+                    const fallbackName = user.email.split('@')[0];
+                    const niceName = fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1);
+                    
+                    const { error: insertErr } = await supabaseClient.from('assistants').insert([
+                        { id: user.id, name: niceName, points: 0, tasks_count: 0, role: 'assistant' }
+                    ]);
+                    
+                    if (insertErr) throw new Error('БД заблокировала создание строки. Выполни SQL код!');
+                    
+                    // Пробуем прочитать еще раз
+                    const retry = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
+                    profile = retry.data;
+                    if (!profile) throw new Error('Сбой при автосоздании профиля.');
+                }
 
                 currentUserData = profile;
                 document.getElementById('current-user-name').innerText = profile.name;
                 document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
                 document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
                 
-                // ИНТЕГРАЦИЯ АВТОМАТИЗАЦИИ ДОЛЖНОСТИ
                 const roleDisplay = document.getElementById('user-role-display');
                 if (profile.role === 'head') {
                     roleDisplay.innerText = 'Head of Civil';
-                    roleDisplay.style.color = '#ffd60a'; // Красивый золотой цвет для Хеда
+                    roleDisplay.style.color = '#ffd60a'; 
                 } else {
                     roleDisplay.innerText = 'Civil Assistant';
-                    roleDisplay.style.color = 'var(--primary)'; // Стандартный малиновый/бордовый
+                    roleDisplay.style.color = 'var(--primary)'; 
                 }
                 
                 document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
@@ -321,6 +333,11 @@
                 loadLeaderboard();
                 
             } catch (err) {
+                // Если ошибка реальная - выводим ее в красном тосте!
+                if (err.message !== 'NOT_AUTH') {
+                    showToast("ОШИБКА БД: " + err.message, true);
+                    console.error("Скрытая ошибка:", err);
+                }
                 await supabaseClient.auth.signOut();
                 localStorage.clear();
                 showAuthView();
@@ -343,26 +360,25 @@
             try {
                 if (isRegisterMode) {
                     if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-                        throw new Error('Слабый пароль! Нужно от 8 символов, буквы и цифры.');
+                        throw new Error('Пароль: от 8 символов, нужны буквы и цифры.');
                     }
 
                     const { data, error } = await supabaseClient.auth.signUp({ email: systemEmail, password });
                     if (error) throw new Error('Ошибка: ' + error.message);
                     
                     if (data.user) {
-                        // При регистрации автоматически вешаем базовую роль 'assistant'
                         const { error: dbError } = await supabaseClient.from('assistants').insert([
-                            { id: data.user.id, email: systemEmail, name: rawName, points: 0, tasks_count: 0, role: 'assistant' }
+                            { id: data.user.id, name: rawName, points: 0, tasks_count: 0, role: 'assistant' }
                         ]);
-                        if (dbError) throw new Error('БД заблокировала запись. Отключи RLS!');
+                        if (dbError) throw new Error('Сбой БД. Убедись, что выполнил SQL из пункта 1.');
                     }
-                    showToast('Успешная регистрация!');
+                    showToast('Успешная регистрация! Загрузка...');
                 } else {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email: systemEmail, password });
                     if (error) throw new Error('Неверный никнейм или пароль');
-                    showToast('Вы авторизовались.');
+                    showToast('Вы авторизовались. Загрузка данных...');
                 }
-                setTimeout(checkSession, 500); 
+                setTimeout(checkSession, 800); 
             } catch (err) {
                 showToast(err.message, true);
             } finally {
@@ -388,14 +404,11 @@
 
             const tbody = document.getElementById('leaderboard-data');
             tbody.innerHTML = '';
-
             let displayIndex = 1;
 
             assistants.forEach((user) => {
                 if (currentUserData && currentUserData.id === user.id) return; 
-
                 let medal = displayIndex === 1 ? '🥇' : displayIndex === 2 ? '🥈' : displayIndex === 3 ? '🥉' : `<span style="color:#636366">${displayIndex}</span>`;
-                
                 tbody.innerHTML += `
                     <tr>
                         <td>${medal}</td>
@@ -415,7 +428,6 @@
         document.getElementById('work-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUserData) return showToast('Ошибка авторизации', true);
-
             const btn = document.getElementById('submit-log-btn');
             btn.disabled = true;
 
@@ -443,7 +455,6 @@
                 
                 document.getElementById('stat-xp').innerText = `${currentUserData.points} XP`;
                 document.getElementById('stat-tasks').innerText = `${currentUserData.tasks_count} шт`;
-                
                 document.getElementById('proof-url').value = '';
                 showToast(`Запись внесена. Получено +${pointsToAdd} XP!`);
                 loadLeaderboard();
