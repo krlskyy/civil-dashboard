@@ -286,11 +286,69 @@
             else if (score === 3) { bar.style.width = '100%'; bar.style.backgroundColor = '#30d158'; }
             else { bar.style.width = '0%'; }
         });
+    <script>
+        const supabase = window.supabase.createClient("ТВОЙ_URL", "ТВОЙ_KEY");
+
+        // 1. Проверка сессии при загрузке
+        async function checkSession() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: profile } = await supabase.from('assistants').select('*').eq('id', user.id).single();
+            if (profile) {
+                document.getElementById('auth-view').style.display = 'none';
+                document.getElementById('dashboard-view').style.display = 'block';
+                document.getElementById('user-display').innerText = "Привет, " + profile.name;
+                
+                // ЛОГИКА РОЛЕЙ
+                const roleEl = document.getElementById('role-display');
+                if (profile.role === 'head') {
+                    roleEl.innerText = "Статус: Head of Civil";
+                    roleEl.style.color = "#ffd60a";
+                } else {
+                    roleEl.innerText = "Статус: Civil Assistant";
+                }
+            }
+        }
+
+        // 2. Обработка логина/регистрации
+        async function handleAuth() {
+            const name = document.getElementById('name').value.trim().toLowerCase();
+            const pass = document.getElementById('pass').value;
+            const email = `${name}@civil.team`;
+            const status = document.getElementById('status');
+
+            status.innerText = "Загрузка...";
+
+            // Пробуем войти
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            
+            if (error) {
+                // Если нет — пробуем создать
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password: pass });
+                if (signUpError) {
+                    status.innerText = "Ошибка: " + signUpError.message;
+                } else {
+                    await supabase.from('assistants').insert([{ id: signUpData.user.id, name, role: 'assistant' }]);
+                    status.innerText = "Аккаунт создан! Попробуйте войти.";
+                }
+            } else {
+                location.reload();
+            }
+        }
+
+        function logOut() {
+            supabase.auth.signOut();
+            localStorage.clear();
+            location.reload();
+        }
+
+        checkSession();
 
         function showAuthView() {
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
             document.getElementById('auth-view').classList.add('active');
-        }
+        });
 
         // === ОБНОВЛЕННАЯ СТРОГАЯ ПРОВЕРКА СЕССИИ ===
         async function checkSession() {
