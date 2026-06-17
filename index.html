@@ -285,7 +285,7 @@
             document.getElementById('auth-view').classList.add('active');
         }
 
-        // УМНАЯ ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ)
+        // УМНАЯ ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ И EMAIL)
         async function checkSession() {
             const authBtn = document.getElementById('auth-btn');
             authBtn.disabled = true;
@@ -296,19 +296,18 @@
 
                 let { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
                 
-                // АВТОВОССТАНОВЛЕНИЕ АККАУНТА (если в Auth ты есть, а в таблице тебя нет)
+                // АВТОВОССТАНОВЛЕНИЕ АККАУНТА
                 if (dbError || !profile) {
-                    // Достаем ник из почты (например kirill_sky из kirill_sky@civil.team)
                     const fallbackName = user.email.split('@')[0];
                     const niceName = fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1);
                     
+                    // ДОБАВЛЕН EMAIL ВОТ СЮДА 👇
                     const { error: insertErr } = await supabaseClient.from('assistants').insert([
-                        { id: user.id, name: niceName, points: 0, tasks_count: 0, role: 'assistant' }
+                        { id: user.id, name: niceName, email: user.email, points: 0, tasks_count: 0, role: 'assistant' }
                     ]);
                     
                     if (insertErr) throw new Error('Скрытая ошибка БД: ' + insertErr.message + ' | ' + insertErr.hint);
                     
-                    // Пробуем прочитать еще раз
                     const retry = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
                     profile = retry.data;
                     if (!profile) throw new Error('Сбой при автосоздании профиля.');
@@ -333,7 +332,6 @@
                 loadLeaderboard();
                 
             } catch (err) {
-                // Если ошибка реальная - выводим ее в красном тосте!
                 if (err.message !== 'NOT_AUTH') {
                     showToast("ОШИБКА БД: " + err.message, true);
                     console.error("Скрытая ошибка:", err);
@@ -367,10 +365,11 @@
                     if (error) throw new Error('Ошибка: ' + error.message);
                     
                     if (data.user) {
+                        // ДОБАВЛЕН EMAIL ВОТ СЮДА 👇
                         const { error: dbError } = await supabaseClient.from('assistants').insert([
-                            { id: data.user.id, name: rawName, points: 0, tasks_count: 0, role: 'assistant' }
+                            { id: data.user.id, name: rawName, email: systemEmail, points: 0, tasks_count: 0, role: 'assistant' }
                         ]);
-                        if (dbError) throw new Error('Сбой БД. Убедись, что выполнил SQL из пункта 1.');
+                        if (dbError) throw new Error('Скрытая ошибка БД: ' + dbError.message);
                     }
                     showToast('Успешная регистрация! Загрузка...');
                 } else {
