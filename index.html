@@ -127,7 +127,7 @@
                         <div class="pass-strength-bar" id="pass-bar"></div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" id="auth-btn">Проверка доступа...</button>
+                <button type="submit" class="btn-primary" id="auth-btn">Войти</button>
             </form>
 
             <div class="auth-switch">
@@ -285,57 +285,36 @@
             document.getElementById('auth-view').classList.add('active');
         }
 
-        // УМНАЯ ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ И EMAIL)
+        // ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ ПРОФИЛЯ)
         async function checkSession() {
-            const authBtn = document.getElementById('auth-btn');
-            
-            // Проверка, есть ли вообще сессия в памяти
             const { data: { session } } = await supabaseClient.auth.getSession();
+
+            // Если активной сессии нет — просто показываем форму входа.
+            // НЕ считаем это ошибкой и НЕ делаем signOut().
             if (!session) {
-                showAuthView(); // Если сессии нет, просто показываем форму
+                showAuthView();
                 return;
             }
 
             try {
-                // Если сессия есть, пробуем достать профиль
-                let { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', session.user.id).single();
-                
-                if (dbError || !profile) {
-                    throw new Error('Профиль не найден');
-                }
+                const user = session.user;
+                let { data: profile, error: dbError } = await supabaseClient
+                    .from('assistants')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
 
-                currentUserData = profile;
-                document.getElementById('current-user-name').innerText = profile.name;
-                document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
-                document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
-                
-                const roleDisplay = document.getElementById('user-role-display');
-                roleDisplay.innerText = profile.role === 'head' ? 'Head of Civil' : 'Civil Assistant';
-                roleDisplay.style.color = profile.role === 'head' ? '#ffd60a' : 'var(--primary)';
-                
-                document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-                document.getElementById('dashboard-view').classList.add('active');
-                loadLeaderboard();
-                
-            } catch (err) {
-                // Только если ошибка критическая (например, профиля вообще нет), тогда разлогиниваем
-                showToast("Ошибка сессии: " + err.message, true);
-                showAuthView();
-            }
-        }
-
-                // АВТОВОССТАНОВЛЕНИЕ АККАУНТА
+                // АВТОВОССТАНОВЛЕНИЕ АККАУНТА: если строки в assistants нет — создаём её
                 if (dbError || !profile) {
                     const fallbackName = user.email.split('@')[0];
                     const niceName = fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1);
-                    
-                    // ДОБАВЛЕН EMAIL ВОТ СЮДА 👇
+
                     const { error: insertErr } = await supabaseClient.from('assistants').insert([
                         { id: user.id, name: niceName, email: user.email, points: 0, tasks_count: 0, role: 'assistant' }
                     ]);
-                    
-                    if (insertErr) throw new Error('Скрытая ошибка БД: ' + insertErr.message + ' | ' + insertErr.hint);
-                    
+
+                    if (insertErr) throw new Error('Ошибка создания профиля: ' + insertErr.message + (insertErr.hint ? ' | ' + insertErr.hint : ''));
+
                     const retry = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
                     profile = retry.data;
                     if (!profile) throw new Error('Сбой при автосоздании профиля.');
@@ -345,31 +324,22 @@
                 document.getElementById('current-user-name').innerText = profile.name;
                 document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
                 document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
-                
+
                 const roleDisplay = document.getElementById('user-role-display');
-                if (profile.role === 'head') {
-                    roleDisplay.innerText = 'Head of Civil';
-                    roleDisplay.style.color = '#ffd60a'; 
-                } else {
-                    roleDisplay.innerText = 'Civil Assistant';
-                    roleDisplay.style.color = 'var(--primary)'; 
-                }
-                
+                roleDisplay.innerText = profile.role === 'head' ? 'Head of Civil' : 'Civil Assistant';
+                roleDisplay.style.color = profile.role === 'head' ? '#ffd60a' : 'var(--primary)';
+
                 document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
                 document.getElementById('dashboard-view').classList.add('active');
                 loadLeaderboard();
-                
+
             } catch (err) {
-                if (err.message !== 'NOT_AUTH') {
-                    showToast("ОШИБКА БД: " + err.message, true);
-                    console.error("Скрытая ошибка:", err);
-                }
-                await supabaseClient.auth.signOut();
-                localStorage.clear();
+                // Сессия Supabase валидна, но профиль не загрузился (например, RLS блокирует select).
+                // Показываем ошибку, но НЕ разлогиниваем — иначе пользователь будет
+                // выкинут на экран входа сразу после успешной авторизации.
+                showToast("Ошибка загрузки профиля: " + err.message, true);
+                console.error(err);
                 showAuthView();
-            } finally {
-                authBtn.disabled = false;
-                authBtn.innerText = isRegisterMode ? 'Зарегистрироваться' : 'Войти';
             }
         }
 
@@ -377,7 +347,8 @@
             e.preventDefault();
             const btn = document.getElementById('auth-btn');
             btn.disabled = true;
-            
+            btn.innerText = isRegisterMode ? 'Регистрация...' : 'Вход...';
+
             const rawName = document.getElementById('auth-name').value.trim();
             const password = document.getElementById('auth-pass').value;
             const safeName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -391,9 +362,14 @@
 
                     const { data, error } = await supabaseClient.auth.signUp({ email: systemEmail, password });
                     if (error) throw new Error('Ошибка: ' + error.message);
-                    
+
+                    if (!data.session) {
+                        // signUp прошёл, но активной сессии нет — обычно значит, что в Supabase
+                        // включено подтверждение почты (Confirm email), а адреса вида name@civil.team не существуют.
+                        throw new Error('Аккаунт создан, но не вошёл автоматически. Отключите "Confirm email" в настройках Supabase Auth.');
+                    }
+
                     if (data.user) {
-                        // ДОБАВЛЕН EMAIL ВОТ СЮДА 👇
                         const { error: dbError } = await supabaseClient.from('assistants').insert([
                             { id: data.user.id, name: rawName, email: systemEmail, points: 0, tasks_count: 0, role: 'assistant' }
                         ]);
@@ -405,20 +381,23 @@
                     if (error) throw new Error('Неверный никнейм или пароль');
                     showToast('Вы авторизовались. Загрузка данных...');
                 }
-                setTimeout(checkSession, 800); 
+                await checkSession();
             } catch (err) {
                 showToast(err.message, true);
             } finally {
                 btn.disabled = false;
+                btn.innerText = isRegisterMode ? 'Зарегистрироваться' : 'Войти';
             }
         });
 
         async function logOut() {
             await supabaseClient.auth.signOut();
-            localStorage.clear();
             currentUserData = null;
-            showAuthView();
+            isRegisterMode = false;
+            document.getElementById('auth-title').innerText = 'Вход в Workspace';
+            document.getElementById('pass-strength-container').style.display = 'none';
             document.getElementById('auth-btn').innerText = 'Войти';
+            showAuthView();
         }
 
         async function loadLeaderboard() {
@@ -464,18 +443,20 @@
             const proofUrl = document.getElementById('proof-url').value;
 
             try {
-                await supabaseClient.from('work_logs').insert([{ 
+                const { error: logErr } = await supabaseClient.from('work_logs').insert([{ 
                     assistant_id: currentUserData.id, 
                     assistant_name: currentUserData.name,
                     task_type: taskText, 
                     points_awarded: pointsToAdd,
                     proof_url: proofUrl 
                 }]);
+                if (logErr) throw new Error(logErr.message);
 
-                await supabaseClient.from('assistants').update({ 
+                const { error: updateErr } = await supabaseClient.from('assistants').update({ 
                     points: (currentUserData.points || 0) + pointsToAdd, 
                     tasks_count: (currentUserData.tasks_count || 0) + 1 
                 }).eq('id', currentUserData.id);
+                if (updateErr) throw new Error(updateErr.message);
 
                 currentUserData.points = (currentUserData.points || 0) + pointsToAdd;
                 currentUserData.tasks_count = (currentUserData.tasks_count || 0) + 1;
