@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Team | Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #08080a; color: #e5e5e7; min-height: 100vh; padding: 30px; display: flex; justify-content: center; position: relative; }
+        body::before { content: ""; position: absolute; width: 500px; height: 500px; top: -10%; right: -10%; border-radius: 50%; background: radial-gradient(circle, rgba(214, 26, 76, 0.08) 0%, rgba(0,0,0,0) 70%); z-index: 0; pointer-events: none; }
+        .dashboard-container { width: 100%; max-width: 1100px; z-index: 1; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 20px; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.03); padding: 8px 16px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .role-tag { background: rgba(214, 26, 76, 0.2); border: 1px solid rgba(214, 26, 76, 0.5); color: #ffffff; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+        .grid-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
+        .card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 25px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); margin-bottom: 25px; }
+        .card-title { font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #8e8e93; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: #aeaeb2; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 16px; color: #ffffff; font-size: 14px; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: rgba(214, 26, 76, 0.5); background: rgba(255, 255, 255, 0.06); }
+        .btn-submit { background: #d61a4c; color: #ffffff; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(214, 26, 76, 0.3); }
+        .btn-submit:hover { background: #f0245c; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(214, 26, 76, 0.4); }
+        .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .leaderboard-table th { color: #636366; font-size: 13px; font-weight: 600; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .leaderboard-table td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        .assistant-name { font-weight: 600; color: #ffffff; }
+        .points-badge { background: rgba(255, 255, 255, 0.05); padding: 4px 10px; border-radius: 8px; font-weight: 700; color: #30d158; }
+        .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        .task-checkbox { margin-top: 3px; accent-color: #d61a4c; }
+        .task-text { font-size: 14px; line-height: 1.4; }
+        .task-text span { display: block; font-size: 11px; color: #636366; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <div><h1>Civil Team Management</h1></div>
+            <div class="user-profile">
+                <span class="role-tag">Head of Civil</span>
+                <strong>Kirill Sky</strong>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div>
+                <div class="card">
+                    <div class="card-title">🏆 Реестр активности ассистентов</div>
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Место</th>
+                                <th>Ассистент</th>
+                                <th>Заданий выполнено</th>
+                                <th>Всего баллов</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-data">
+                            <tr><td colspan="4" style="text-align: center; color: #8e8e93;">Загрузка данных...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📝 Внести выполненную работу</div>
+                    <form id="work-form">
+                        <div class="form-group">
+                            <label>Кто выполнил задачу?</label>
+                            <select class="form-control" id="assistant-select" style="background: #1c1c1e;" required>
+                                </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Что было сделано?</label>
+                            <select class="form-control" id="task-select" style="background: #1c1c1e;" required>
+                                <option value="10">Проверка топика организации (+10 баллов)</option>
+                                <option value="20">Контроль фракционной игры внутри сервера (+20 баллов)</option>
+                                <option value="15">Одобрение/Курирование нового бизнеса (+15 баллов)</option>
+                                <option value="25">Разрешение конфликтной ситуации (+25 баллов)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ссылка на доказательства (Форум / Скриншоты)</label>
+                            <input type="url" id="proof-url" class="form-control" placeholder="https://bw-p.ru/threads/..." required>
+                        </div>
+                        <button type="submit" class="btn-submit" id="submit-btn">Отправить на учет</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-title">🎯 Задачи на неделю</div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <div class="task-text">Проверить "мертвые" коммерческие точки под снос.<span>Всем ассистентам</span></div>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-text">Связаться с лидерами Hayes Pawn Shop по поводу их гейма.<span>Artem_Hayes</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ВНИМАНИЕ: Замени эти данные на свои ключи из Supabase (Settings -> API)
+        const SUPABASE_URL = "jdrepnjvvyzaiohihvvw";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcmVwbmp2dnl6YWlvaGlodnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDczODUsImV4cCI6MjA5NzI4MzM4NX0.Byex7T_qRiiVBmFMD3QeS8tALx5k1ZIV34O2QDrjjbI";
+
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Функция загрузки данных
+        async function loadDashboardData() {
+            // 1. Получаем список ассистентов, сортируя по баллам от большего к меньшему
+            const { data: assistants, error } = await supabase
+                .from('assistants')
+                .select('*')
+                .order('points', { ascending: false });
+
+            if (error) return console.error(error);
+
+            // Обновляем таблицу лидеров
+            const tbody = document.getElementById('leaderboard-data');
+            const select = document.getElementById('assistant-select');
+            
+            tbody.innerHTML = '';
+            let selectHTML = '';
+
+            assistants.forEach((user, index) => {
+                let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '👤';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${medal} ${index + 1}</td>
+                        <td class="assistant-name">${user.name}</td>
+                        <td>${user.tasks_count}</td>
+                        <td><span class="points-badge">+${user.points} XP</span></td>
+                    </tr>
+                `;
+                selectHTML += `<option value="${user.name}">${user.name}</option>`;
+            });
+
+            select.innerHTML = selectHTML;
+        }
+
+        // Обработка отправки формы
+        document.getElementById('work-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = 'Сохранение...';
+            btn.disabled = true;
+
+            const name = document.getElementById('assistant-select').value;
+            const taskSelect = document.getElementById('task-select');
+            const pointsToAdd = parseInt(taskSelect.value);
+            const taskText = taskSelect.options[taskSelect.selectedIndex].text;
+            const url = document.getElementById('proof-url').value;
+
+            // 1. Записываем лог в таблицу work_logs
+            await supabase.from('work_logs').insert([
+                { assistant_name: name, task_type: taskText, proof_url: url }
+            ]);
+
+            // 2. Получаем текущие баллы ассистента для обновления
+            const { data } = await supabase.from('assistants').select('points, tasks_count').eq('name', name).single();
+
+            // 3. Обновляем счетчик баллов и задач
+            await supabase.from('assistants').update({ 
+                points: data.points + pointsToAdd, 
+                tasks_count: data.tasks_count + 1 
+            }).eq('name', name);
+
+            // Сбрасываем форму и обновляем экран
+            document.getElementById('proof-url').value = '';
+            btn.innerText = 'Отправить на учет';
+            btn.disabled = false;
+            
+            alert('Успешно внесено! Баллы обновлены.');
+            loadDashboardData();
+        });
+
+        // Первый запуск при загрузке страницы
+        loadDashboardData();
+    </script>
+</body>
+</html>
