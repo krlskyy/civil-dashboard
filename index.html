@@ -306,7 +306,7 @@
                         { id: user.id, name: niceName, points: 0, tasks_count: 0, role: 'assistant' }
                     ]);
                     
-                    if (insertErr) throw new Error('БД заблокировала создание строки. Выполни SQL код!');
+                    if (insertErr) throw new Error('Скрытая ошибка БД: ' + insertErr.message + ' | ' + insertErr.hint);
                     
                     // Пробуем прочитать еще раз
                     const retry = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
