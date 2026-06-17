@@ -288,14 +288,42 @@
         // УМНАЯ ПРОВЕРКА СЕССИИ (С АВТОВОССТАНОВЛЕНИЕМ И EMAIL)
         async function checkSession() {
             const authBtn = document.getElementById('auth-btn');
-            authBtn.disabled = true;
+            
+            // Проверка, есть ли вообще сессия в памяти
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                showAuthView(); // Если сессии нет, просто показываем форму
+                return;
+            }
 
             try {
-                const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-                if (authError || !user) throw new Error('NOT_AUTH'); 
-
-                let { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', user.id).single();
+                // Если сессия есть, пробуем достать профиль
+                let { data: profile, error: dbError } = await supabaseClient.from('assistants').select('*').eq('id', session.user.id).single();
                 
+                if (dbError || !profile) {
+                    throw new Error('Профиль не найден');
+                }
+
+                currentUserData = profile;
+                document.getElementById('current-user-name').innerText = profile.name;
+                document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
+                document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
+                
+                const roleDisplay = document.getElementById('user-role-display');
+                roleDisplay.innerText = profile.role === 'head' ? 'Head of Civil' : 'Civil Assistant';
+                roleDisplay.style.color = profile.role === 'head' ? '#ffd60a' : 'var(--primary)';
+                
+                document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+                document.getElementById('dashboard-view').classList.add('active');
+                loadLeaderboard();
+                
+            } catch (err) {
+                // Только если ошибка критическая (например, профиля вообще нет), тогда разлогиниваем
+                showToast("Ошибка сессии: " + err.message, true);
+                showAuthView();
+            }
+        }
+
                 // АВТОВОССТАНОВЛЕНИЕ АККАУНТА
                 if (dbError || !profile) {
                     const fallbackName = user.email.split('@')[0];
