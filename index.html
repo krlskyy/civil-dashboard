@@ -103,13 +103,19 @@
         .leaderboard-table td { padding: 12px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); text-align: left; }
         .points-badge { background: rgba(48, 209, 88, 0.1); border: 1px solid rgba(48, 209, 88, 0.2); padding: 3px 8px; border-radius: 6px; font-weight: 600; color: var(--success); font-size: 12px; }
 
-        .admin-table { width: 100%; border-collapse: collapse; }
-        .admin-table th { color: #636366; font-size: 11px; font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; text-align: left; }
-        .admin-table td { padding: 10px 6px 10px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; }
-        .role-select, .points-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px; padding: 6px 8px; font-size: 13px; }
-        .points-input { width: 80px; }
-        .save-row-btn { background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.3); color: var(--success); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .admin-list { display: flex; flex-direction: column; gap: 16px; }
+        .admin-row { padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .admin-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .admin-row-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+        .admin-row-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .role-select, .points-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+        .role-select { flex: 1 1 120px; min-width: 0; }
+        .points-input { flex: 0 1 80px; min-width: 0; }
+        .save-row-btn, .delete-row-btn { flex: 0 0 auto; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; }
+        .save-row-btn { background: rgba(48, 209, 88, 0.12); border-color: rgba(48, 209, 88, 0.3); color: var(--success); }
         .save-row-btn:hover { background: rgba(48, 209, 88, 0.2); }
+        .delete-row-btn { background: rgba(255, 69, 58, 0.1); border-color: rgba(255, 69, 58, 0.3); color: #ff453a; }
+        .delete-row-btn:hover { background: rgba(255, 69, 58, 0.2); }
 
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -262,19 +268,9 @@
         <div id="admin-tab" class="tab-content">
             <div class="card">
                 <div class="card-title">👑 Управление ассистентами</div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Ассистент</th>
-                            <th>Роль</th>
-                            <th>Баллы</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-data">
-                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Загрузка...</td></tr>
-                    </tbody>
-                </table>
+                <div id="admin-data" class="admin-list">
+                    <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -492,34 +488,56 @@
                 .select('*')
                 .order('points', { ascending: false });
 
-            const tbody = document.getElementById('admin-data');
+            const container = document.getElementById('admin-data');
 
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff453a; padding:20px;">Ошибка: ${error.message}</td></tr>`;
+                container.innerHTML = `<p style="text-align:center; color:#ff453a; padding:20px 0;">Ошибка: ${error.message}</p>`;
                 return;
             }
 
-            tbody.innerHTML = '';
-            assistants.forEach((user) => {
+            if (!assistants || assistants.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px 0;">Список пуст</p>`;
+                return;
+            }
+
+            container.innerHTML = assistants.map((user) => {
                 const isSelf = currentUserData.id === user.id;
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:600; color:#fff;">${user.name}${isSelf ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''}</td>
-                        <td>
+                const safeName = user.name.replace(/'/g, "\\'");
+                return `
+                    <div class="admin-row">
+                        <div class="admin-row-name">${user.name}${isSelf ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''}</div>
+                        <div class="admin-row-controls">
                             <select class="role-select" id="role-${user.id}">
                                 <option value="assistant" ${user.role !== 'head' ? 'selected' : ''}>Assistant</option>
                                 <option value="head" ${user.role === 'head' ? 'selected' : ''}>Head</option>
                             </select>
-                        </td>
-                        <td><input type="number" class="points-input" id="points-${user.id}" value="${user.points || 0}"></td>
-                        <td><button class="save-row-btn" onclick="adminSaveUser('${user.id}')">Сохранить</button></td>
-                    </tr>
+                            <input type="number" class="points-input" id="points-${user.id}" value="${user.points || 0}">
+                            <button class="save-row-btn" onclick="adminSaveUser('${user.id}')">Сохранить</button>
+                            ${isSelf ? '' : `<button class="delete-row-btn" onclick="adminDeleteUser('${user.id}', '${safeName}')">Удалить</button>`}
+                        </div>
+                    </div>
                 `;
-            });
+            }).join('');
+        }
 
-            if (tbody.innerHTML === '') {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Список пуст</td></tr>`;
+        async function adminDeleteUser(userId, userName) {
+            if (!confirm(`Удалить аккаунт «${userName}» из базы навсегда? Действие нельзя отменить.`)) return;
+
+            const { error: logsErr } = await supabaseClient.from('work_logs').delete().eq('assistant_id', userId);
+            if (logsErr) {
+                showToast('Ошибка удаления отчётов: ' + logsErr.message, true);
+                return;
             }
+
+            const { error } = await supabaseClient.from('assistants').delete().eq('id', userId);
+            if (error) {
+                showToast('Ошибка удаления: ' + error.message, true);
+                return;
+            }
+
+            showToast(`Аккаунт «${userName}» удалён из базы`);
+            loadLeaderboard();
+            loadAdminPanel();
         }
 
         async function adminSaveUser(userId) {
