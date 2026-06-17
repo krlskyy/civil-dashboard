@@ -14,7 +14,7 @@
             min-height: 100vh; 
             display: flex; 
             justify-content: center; 
-            align-items: center; /* Центрируем по вертикали для экрана входа */
+            align-items: flex-start; /* Безопасный старт для мобильных устройств */
             padding: 20px;
             position: relative;
             overflow-x: hidden;
@@ -32,14 +32,18 @@
             width: 100%;
             max-width: 1100px;
             z-index: 1;
-            display: none; /* Скрыты по умолчанию */
+            display: none; 
             animation: fadeIn 0.4s ease forwards;
         }
         .view-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Специфично для экрана авторизации */
-        #auth-view { max-width: 400px; margin: auto; }
+        /* Фикс адаптивного расположения окна авторизации */
+        #auth-view { 
+            width: 100%;
+            max-width: 400px; 
+            margin: 12vh auto; /* Идеальное центрирование без деформации при открытии клавиатуры */
+        }
 
         /* Шапка Dashboard */
         .header { 
@@ -106,26 +110,24 @@
         /* ================= МОБИЛЬНАЯ АДАПТАЦИЯ ================= */
         @media (max-width: 768px) {
             body { padding: 15px; align-items: flex-start; }
-            .grid-layout { grid-template-columns: 1fr; gap: 15px; } /* В одну колонку */
-            .header { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .grid-layout { grid-template-columns: 1fr; gap: 15px; } 
+            .header { flex-direction: column; gap: 15px; align-items: flex-start; margin-bottom: 20px; }
             .user-controls { width: 100%; justify-content: space-between; }
             .card { padding: 20px 15px; margin-bottom: 15px; }
-            .leaderboard-table th:nth-child(3), .leaderboard-table td:nth-child(3) { display: none; } /* Прячем колонку "Задачи" на мобилках для экономии места */
+            #auth-view { margin: 4vh auto; }
+            .leaderboard-table th:nth-child(3), .leaderboard-table td:nth-child(3) { display: none; } 
         }
     </style>
 </head>
 <body>
 
-    <!-- Уведомления -->
     <div id="toast">Уведомление</div>
 
-    <!-- ================= ЭКРАН 1: АВТОРИЗАЦИЯ ================= -->
     <div id="auth-view" class="view-container active">
         <div class="card">
-            <h2 style="text-align: center; margin-bottom: 25px; font-size: 22px;">Вход в систему</h2>
+            <h2 id="auth-title" style="text-align: center; margin-bottom: 25px; font-size: 22px;">Вход в систему</h2>
             
             <form id="auth-form">
-                <!-- Поле Имя скрыто при логине, показывается при регистрации -->
                 <div class="form-group" id="name-group" style="display: none;">
                     <label>Игровой никнейм (Ассистент)</label>
                     <input type="text" id="auth-name" class="form-control" placeholder="Kirill_Sky">
@@ -147,7 +149,6 @@
         </div>
     </div>
 
-    <!-- ================= ЭКРАН 2: DASHBOARD ================= -->
     <div id="dashboard-view" class="view-container">
         <div class="header">
             <div><h1>Civil Team Workspace</h1></div>
@@ -161,7 +162,6 @@
         </div>
 
         <div class="grid-layout">
-            <!-- Левая колонка: Форма -->
             <div>
                 <div class="card">
                     <div class="card-title">📝 Залогировать работу</div>
@@ -184,7 +184,6 @@
                 </div>
             </div>
 
-            <!-- Правая колонка: Лидерборд -->
             <div>
                 <div class="card">
                     <div class="card-title">🏆 Живой реестр активности</div>
@@ -206,12 +205,13 @@
         </div>
     </div>
 
-    <!-- ================= ЛОГИКА ПРИЛОЖЕНИЯ ================= -->
     <script>
-        // --- 1. НАСТРОЙКИ SUPABASE ---
-        const SUPABASE_URL = "https://jdrepnjvvyzaiohihvvw.supabase.co/rest/v1/";
+        // --- 1. НАСТРОЙКИ SUPABASE (Адрес очищен от лишних подпапок) ---
+        const SUPABASE_URL = "https://jdrepnjvvyzaiohihvvw.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcmVwbmp2dnl6YWlvaGlodnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDczODUsImV4cCI6MjA5NzI4MzM4NX0.Byex7T_qRiiVBmFMD3QeS8tALx5k1ZIV34O2QDrjjbI";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Исправлен краш инициализации контекста
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- 2. ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
         let isRegisterMode = false;
@@ -230,6 +230,7 @@
             isRegisterMode = !isRegisterMode;
             document.getElementById('name-group').style.display = isRegisterMode ? 'block' : 'none';
             document.getElementById('auth-name').required = isRegisterMode;
+            document.getElementById('auth-title').innerText = isRegisterMode ? 'Регистрация' : 'Вход в систему';
             document.getElementById('auth-btn').innerText = isRegisterMode ? 'Создать аккаунт' : 'Войти';
             document.getElementById('auth-toggle-text').innerHTML = isRegisterMode 
                 ? 'Уже в команде? <span onclick="toggleAuthMode()">Войти</span>'
@@ -239,26 +240,20 @@
         function switchView(viewId) {
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            
-            // Если перешли в Dashboard, восстанавливаем выравнивание body по верху для скролла
-            if(viewId === 'dashboard-view') {
-                document.body.style.alignItems = 'flex-start';
-            } else {
-                document.body.style.alignItems = 'center';
-            }
         }
 
         // --- 4. АВТОРИЗАЦИЯ И СЕССИИ ---
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                // Если есть сессия, получаем профиль ассистента
-                const { data: profile } = await supabase.from('assistants').select('*').eq('id', session.user.id).single();
+                const { data: profile } = await supabaseClient.from('assistants').select('*').eq('id', session.user.id).single();
                 if (profile) {
                     currentUserData = profile;
                     document.getElementById('current-user-name').innerText = profile.name;
                     switchView('dashboard-view');
                     loadLeaderboard();
+                } else {
+                    switchView('auth-view');
                 }
             } else {
                 switchView('auth-view');
@@ -277,25 +272,22 @@
             try {
                 if (isRegisterMode) {
                     const name = document.getElementById('auth-name').value;
-                    // Регистрация в Auth
-                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
                     
-                    // Создание записи в таблице assistants
                     if (data.user) {
-                        const { error: dbError } = await supabase.from('assistants').insert([
+                        const { error: dbError } = await supabaseClient.from('assistants').insert([
                             { id: data.user.id, email: email, name: name }
                         ]);
                         if (dbError) throw dbError;
                     }
-                    showToast('Аккаунт создан! Добро пожаловать.');
+                    showToast('Аккаунт создан!');
                 } else {
-                    // Логин
-                    const { error } = await supabase.auth.signInWithPassword({ email, password });
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     showToast('Успешный вход.');
                 }
-                setTimeout(checkSession, 1000); // Проверяем сессию и пускаем внутрь
+                setTimeout(checkSession, 500); 
             } catch (err) {
                 showToast(err.message, true);
             } finally {
@@ -305,14 +297,14 @@
         });
 
         async function logOut() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             currentUserData = null;
-            checkSession();
+            switchView('auth-view');
         }
 
-        // --- 5. РАБОТА С БАЗОЙ ДАННЫХ (DASHBOARD) ---
+        // --- 5. РАБОТА С БАЗОЙ ДАННЫХ ---
         async function loadLeaderboard() {
-            const { data: assistants, error } = await supabase
+            const { data: assistants, error } = await supabaseClient
                 .from('assistants')
                 .select('*')
                 .order('points', { ascending: false });
@@ -324,8 +316,6 @@
 
             assistants.forEach((user, index) => {
                 let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '<span style="color:#636366">#</span>';
-                
-                // Выделяем самого себя в таблице
                 const isMe = currentUserData && currentUserData.id === user.id;
                 const rowStyle = isMe ? 'background: rgba(214, 26, 76, 0.1);' : '';
                 
@@ -342,7 +332,7 @@
 
         document.getElementById('work-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!currentUserData) return showToast('Ошибка: Нет данных профиля', true);
+            if (!currentUserData) return showToast('Ошибка профиля', true);
 
             const btn = document.getElementById('submit-log-btn');
             btn.disabled = true;
@@ -354,8 +344,7 @@
             const proofUrl = document.getElementById('proof-url').value;
 
             try {
-                // 1. Запись лога (от лица того, кто авторизован)
-                await supabase.from('work_logs').insert([{ 
+                await supabaseClient.from('work_logs').insert([{ 
                     assistant_id: currentUserData.id, 
                     assistant_name: currentUserData.name,
                     task_type: taskText, 
@@ -363,13 +352,11 @@
                     proof_url: proofUrl 
                 }]);
 
-                // 2. Добавляем баллы в профиль
-                await supabase.from('assistants').update({ 
+                await supabaseClient.from('assistants').update({ 
                     points: currentUserData.points + pointsToAdd, 
                     tasks_count: currentUserData.tasks_count + 1 
                 }).eq('id', currentUserData.id);
 
-                // Обновляем локальные данные и UI
                 currentUserData.points += pointsToAdd;
                 currentUserData.tasks_count += 1;
                 
@@ -377,14 +364,13 @@
                 showToast(`+${pointsToAdd} XP начислено!`);
                 loadLeaderboard();
             } catch (err) {
-                showToast('Ошибка при отправке: ' + err.message, true);
+                showToast('Ошибка: ' + err.message, true);
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Внести в реестр';
             }
         });
 
-        // Запуск при загрузке
         checkSession();
     </script>
 </body>
