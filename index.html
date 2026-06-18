@@ -20,6 +20,8 @@
             --success: #30d158;
             --gold: #f0c75e;
             --gold-soft: rgba(240, 199, 94, 0.12);
+            --deputy: #8fb8ff;
+            --deputy-soft: rgba(143, 184, 255, 0.12);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -81,11 +83,14 @@
         .app-navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .app-navbar h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
         .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border: 1px solid rgba(240,199,94,0.3); padding: 4px 10px; border-radius: 20px; }
+        .head-crown.role-deputy { color: var(--deputy); background: var(--deputy-soft); border-color: rgba(143,184,255,0.3); }
         .nav-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
         .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .tab-btn.active { background: rgba(255,255,255,0.06); color: #fff; }
         .tab-btn.admin-btn { color: var(--gold); }
         .tab-btn.admin-btn.active { background: var(--gold-soft); color: var(--gold); }
+        .tab-btn.admin-btn.is-deputy { color: var(--deputy); }
+        .tab-btn.admin-btn.is-deputy.active { background: var(--deputy-soft); color: var(--deputy); }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 18px; border-radius: 14px; transition: border-color 0.2s, transform 0.2s; }
@@ -93,6 +98,7 @@
         .stat-box p { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .stat-box h3 { font-size: 24px; color: #fff; font-weight: 700; letter-spacing: -0.3px; }
         .stat-box.gold { border-color: rgba(240, 199, 94, 0.25); background: linear-gradient(160deg, var(--gold-soft), transparent); }
+        .stat-box.silver { border-color: rgba(143, 184, 255, 0.25); background: linear-gradient(160deg, var(--deputy-soft), transparent); }
 
         .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; }
         .tab-content { display: none; }
@@ -111,11 +117,20 @@
         .role-select, .points-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
         .role-select { flex: 1 1 120px; min-width: 0; }
         .points-input { flex: 0 1 80px; min-width: 0; }
-        .save-row-btn, .delete-row-btn { flex: 0 0 auto; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; }
+        .save-row-btn, .delete-row-btn, .view-row-btn, .add-points-btn { flex: 0 0 auto; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; }
         .save-row-btn { background: rgba(48, 209, 88, 0.12); border-color: rgba(48, 209, 88, 0.3); color: var(--success); }
         .save-row-btn:hover { background: rgba(48, 209, 88, 0.2); }
         .delete-row-btn { background: rgba(255, 69, 58, 0.1); border-color: rgba(255, 69, 58, 0.3); color: #ff453a; }
         .delete-row-btn:hover { background: rgba(255, 69, 58, 0.2); }
+        .view-row-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: var(--text-muted); }
+        .view-row-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .add-points-input { width: 70px; }
+        .add-points-btn { background: var(--gold-soft); border-color: rgba(240,199,94,0.3); color: var(--gold); }
+        .add-points-btn:hover { background: rgba(240,199,94,0.2); }
+        .admin-row-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.04); margin: 4px 0; }
+        .admin-row-profile { margin-top: 10px; padding: 12px 14px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
+        .admin-row-profile b { color: #e5e5e7; font-weight: 600; }
+        .role-lock-note { font-size: 12px; color: var(--text-muted); }
 
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -207,14 +222,14 @@
                             <div class="form-group">
                                 <label>Выбери тип выполненной задачи</label>
                                 <select class="form-control" id="task-select" required>
-                                    <option value="10">Проверка топика фракции (+10 XP)</option>
-                                    <option value="20">Контроль игры на сервере (+20 XP)</option>
-                                    <option value="15">Обработка заявки на бизнес (+15 XP)</option>
-                                    <option value="30">Организация RP ситуации (+30 XP)</option>
+                                    <option value="10">Взял топик под свою слежку (+10 XP)</option>
+                                    <option value="25">Провёл игровое мероприятие (+25 XP)</option>
+                                    <option value="15">Обработал заявку (гранты, поощрения, бизнес) (+15 XP)</option>
+                                    <option value="30">Помог игроку с поддержкой его организации (+30 XP)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Ссылка на доказательства (СС/Форум)</label>
+                                <label>Ссылка на доказательства</label>
                                 <input type="url" id="proof-url" class="form-control" placeholder="https://bw-p.ru/..." required>
                             </div>
                             <button type="submit" class="btn-primary" id="submit-log-btn">Отправить в реестр</button>
@@ -247,13 +262,6 @@
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <div class="card-title">⚙️ Конфигурация профиля</div>
                 <div class="settings-list">
-                    <div class="settings-item">
-                        <div class="settings-info">
-                            <h4>Режим невидимки в топе</h4>
-                            <p>Твой ник автоматически скрыт из общей таблицы лидеров для других.</p>
-                        </div>
-                        <span style="color: var(--success); font-size: 13px; font-weight: 600;">АКТИВЕН</span>
-                    </div>
                     <div class="settings-item">
                         <div class="settings-info">
                             <h4>Безопасность сессии</h4>
@@ -369,18 +377,36 @@
                 document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
                 document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
 
+                const roleLabels = { head: 'Head of Civil', deputy_head: 'Deputy Head of Civil', assistant: 'Civil Assistant' };
+                const roleColors = { head: '#f0c75e', deputy_head: '#8fb8ff', assistant: 'var(--primary)' };
                 const roleDisplay = document.getElementById('user-role-display');
-                roleDisplay.innerText = profile.role === 'head' ? 'Head of Civil' : 'Civil Assistant';
-                roleDisplay.style.color = profile.role === 'head' ? '#ffd60a' : 'var(--primary)';
+                roleDisplay.innerText = roleLabels[profile.role] || 'Civil Assistant';
+                roleDisplay.style.color = roleColors[profile.role] || 'var(--primary)';
 
                 const isHead = profile.role === 'head';
-                document.getElementById('admin-tab-btn').style.display = isHead ? 'block' : 'none';
-                document.getElementById('head-crown-badge').style.display = isHead ? 'flex' : 'none';
-                document.getElementById('role-stat-box').classList.toggle('gold', isHead);
+                const isDeputy = profile.role === 'deputy_head';
+                const isAdminish = isHead || isDeputy;
+
+                const adminBtn = document.getElementById('admin-tab-btn');
+                adminBtn.style.display = isAdminish ? 'block' : 'none';
+                adminBtn.classList.toggle('is-deputy', isDeputy);
+
+                const crownBadge = document.getElementById('head-crown-badge');
+                crownBadge.style.display = isAdminish ? 'flex' : 'none';
+                crownBadge.classList.toggle('role-deputy', isDeputy);
+                crownBadge.innerText = isHead ? '👑 Head' : isDeputy ? '🛡️ Deputy' : '';
+
+                const roleStatBox = document.getElementById('role-stat-box');
+                roleStatBox.classList.toggle('gold', isHead);
+                roleStatBox.classList.toggle('silver', isDeputy);
 
                 document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
                 document.getElementById('dashboard-view').classList.add('active');
                 loadLeaderboard();
+
+                // Фиксируем время последнего визита. Не блокирует вход, если колонки last_seen ещё нет в БД.
+                supabaseClient.from('assistants').update({ last_seen: new Date().toISOString() }).eq('id', user.id)
+                    .then(({ error: seenErr }) => { if (seenErr) console.warn('last_seen не обновлён:', seenErr.message); });
 
             } catch (err) {
                 // Сессия Supabase валидна, но профиль не загрузился (например, RLS блокирует select).
@@ -410,7 +436,12 @@
                     }
 
                     const { data, error } = await supabaseClient.auth.signUp({ email: systemEmail, password });
-                    if (error) throw new Error('Ошибка: ' + error.message);
+                    if (error) {
+                        if (/already registered|already exists/i.test(error.message)) {
+                            throw new Error('Этот никнейм уже занят в системе (возможно, осталась незавершённая попытка регистрации). Попробуй другой никнейм или попроси Head удалить старую запись в Supabase → Authentication → Users.');
+                        }
+                        throw new Error('Ошибка: ' + error.message);
+                    }
 
                     if (!data.session) {
                         // signUp прошёл, но активной сессии нет — обычно значит, что в Supabase
@@ -462,6 +493,7 @@
             let displayIndex = 1;
 
             assistants.forEach((user) => {
+                if (user.role !== 'assistant') return;
                 if (currentUserData && currentUserData.id === user.id) return; 
                 let medal = displayIndex === 1 ? '🥇' : displayIndex === 2 ? '🥈' : displayIndex === 3 ? '🥉' : `<span style="color:#636366">${displayIndex}</span>`;
                 tbody.innerHTML += `
@@ -480,8 +512,23 @@
             }
         }
 
+        function formatLastSeen(ts) {
+            if (!ts) return 'ещё не заходил';
+            const date = new Date(ts);
+            const diffHours = (new Date() - date) / 36e5;
+            if (diffHours < 24) {
+                return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            }
+            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function toggleProfileCard(userId) {
+            const card = document.getElementById(`profile-${userId}`);
+            card.style.display = card.style.display === 'none' ? 'flex' : 'none';
+        }
+
         async function loadAdminPanel() {
-            if (!currentUserData || currentUserData.role !== 'head') return;
+            if (!currentUserData || (currentUserData.role !== 'head' && currentUserData.role !== 'deputy_head')) return;
 
             const { data: assistants, error } = await supabaseClient
                 .from('assistants')
@@ -500,24 +547,75 @@
                 return;
             }
 
+            const isCurrentHead = currentUserData.role === 'head';
+
             container.innerHTML = assistants.map((user) => {
                 const isSelf = currentUserData.id === user.id;
                 const safeName = user.name.replace(/'/g, "\\'");
+                const profileBlock = `
+                    <div class="admin-row-profile" id="profile-${user.id}" style="display:none;">
+                        <span><b>Email:</b> ${user.email || '—'}</span>
+                        <span><b>Отчётов:</b> ${user.tasks_count || 0}</span>
+                        <span><b>Последний визит:</b> ${formatLastSeen(user.last_seen)}</span>
+                    </div>
+                `;
+                const viewBtn = `<button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">👁 Профиль</button>`;
+
+                // Deputy не может управлять Head'ом — показываем только просмотр.
+                if (user.role === 'head' && !isCurrentHead) {
+                    return `
+                        <div class="admin-row">
+                            <div class="admin-row-name">${user.name} <span class="role-lock-note">— 👑 Head, управление недоступно</span></div>
+                            <div class="admin-row-controls">${viewBtn}</div>
+                            ${profileBlock}
+                        </div>
+                    `;
+                }
+
+                const headOption = isCurrentHead ? `<option value="head" ${user.role === 'head' ? 'selected' : ''}>Head</option>` : '';
+                const canDelete = !isSelf && (isCurrentHead || user.role === 'assistant');
+
                 return `
                     <div class="admin-row">
                         <div class="admin-row-name">${user.name}${isSelf ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''}</div>
                         <div class="admin-row-controls">
                             <select class="role-select" id="role-${user.id}">
-                                <option value="assistant" ${user.role !== 'head' ? 'selected' : ''}>Assistant</option>
-                                <option value="head" ${user.role === 'head' ? 'selected' : ''}>Head</option>
+                                <option value="assistant" ${user.role === 'assistant' ? 'selected' : ''}>Assistant</option>
+                                <option value="deputy_head" ${user.role === 'deputy_head' ? 'selected' : ''}>Deputy Head</option>
+                                ${headOption}
                             </select>
                             <input type="number" class="points-input" id="points-${user.id}" value="${user.points || 0}">
                             <button class="save-row-btn" onclick="adminSaveUser('${user.id}')">Сохранить</button>
-                            ${isSelf ? '' : `<button class="delete-row-btn" onclick="adminDeleteUser('${user.id}', '${safeName}')">Удалить</button>`}
+                            ${canDelete ? `<button class="delete-row-btn" onclick="adminDeleteUser('${user.id}', '${safeName}')">Удалить</button>` : ''}
+                            ${viewBtn}
                         </div>
+                        <div class="admin-row-controls" style="margin-top:8px;">
+                            <input type="number" class="points-input add-points-input" id="addpoints-${user.id}" placeholder="+ баллы">
+                            <button class="add-points-btn" onclick="adminAddPoints('${user.id}')">Начислить</button>
+                        </div>
+                        ${profileBlock}
                     </div>
                 `;
             }).join('');
+        }
+
+        async function adminAddPoints(userId) {
+            const input = document.getElementById(`addpoints-${userId}`);
+            const delta = parseInt(input.value);
+            if (!delta) return showToast('Введи количество баллов', true);
+
+            const { data: current, error: fetchErr } = await supabaseClient.from('assistants').select('points').eq('id', userId).single();
+            if (fetchErr) return showToast('Ошибка: ' + fetchErr.message, true);
+
+            const newPoints = (current.points || 0) + delta;
+            const { error } = await supabaseClient.from('assistants').update({ points: newPoints }).eq('id', userId);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+
+            showToast(`Начислено +${delta} XP. Всего: ${newPoints} XP`);
+            input.value = '';
+            loadLeaderboard();
+            loadAdminPanel();
+            if (userId === currentUserData.id) checkSession();
         }
 
         async function adminDeleteUser(userId, userName) {
