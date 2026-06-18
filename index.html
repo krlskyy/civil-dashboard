@@ -154,6 +154,62 @@
         .task-actions { margin-top: 10px; padding-left: 28px; }
         .tasks-empty { text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 14px; }
 
+        .task-title-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+
+        .status-pill, .status-select { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid; background: transparent; font-family: inherit; }
+        .status-select { cursor: pointer; }
+        .status-todo { color: #aeaeb2; border-color: rgba(174,174,178,0.3); background: rgba(174,174,178,0.08); }
+        .status-in_progress { color: #5ac8fa; border-color: rgba(90,200,250,0.3); background: rgba(90,200,250,0.1); }
+        .status-done { color: var(--success); border-color: rgba(48,209,88,0.3); background: rgba(48,209,88,0.1); }
+
+        .task-tag.due { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+        .task-tag.overdue { background: rgba(255,69,58,0.12); color: #ff453a; border: 1px solid rgba(255,69,58,0.3); }
+        .task-tag.priority-low { background: rgba(48,209,88,0.1); color: var(--success); }
+        .task-tag.priority-medium { background: rgba(255,159,10,0.12); color: #ff9f0a; }
+        .task-tag.priority-high { background: rgba(255,69,58,0.12); color: #ff453a; }
+
+        .task-avatars { display: flex; }
+        .task-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; border: 2px solid var(--bg-main); margin-left: -6px; }
+        .task-avatar:first-child { margin-left: 0; }
+        .task-avatar.todo { box-shadow: 0 0 0 1.5px #3a3a3c; opacity: 0.55; }
+        .task-avatar.pending { box-shadow: 0 0 0 1.5px #ff9f0a; }
+        .task-avatar.confirmed { box-shadow: 0 0 0 1.5px var(--success); }
+        .task-avatar.clickable { cursor: pointer; }
+        .task-avatar.clickable:hover { transform: scale(1.12); }
+
+        .task-progress-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .task-progress-frac { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .task-progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+        .task-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--gold)); transition: width 0.3s; }
+
+        .task-mark-btn { margin-top: 10px; background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.3); color: var(--success); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .task-mark-btn:hover { background: rgba(48,209,88,0.2); }
+        .task-pending-note, .task-confirmed-note { margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .task-cancel-btn { background: none; border: none; color: #ff453a; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit; }
+
+        .task-footer { display: flex; gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .comments-toggle-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0; font-family: inherit; }
+        .comments-toggle-btn:hover { color: #fff; }
+
+        .task-comments { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .comments-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+        .comment-item { display: flex; gap: 8px; }
+        .comment-avatar { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+        .comment-body { font-size: 12px; }
+        .comment-head { color: var(--text-muted); margin-bottom: 2px; }
+        .comment-head b { color: #fff; font-weight: 600; }
+        .comment-text { color: #d1d1d3; }
+        .comment-input-row { display: flex; gap: 8px; }
+        .comment-input-row .comment-input { flex: 1; padding: 8px 12px; font-size: 12px; }
+        .comment-send-btn { background: var(--primary); border: none; color: #fff; width: 36px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+
+        .log-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 10px; }
+        .log-row-title { font-size: 13px; font-weight: 600; color: #fff; }
+        .log-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .log-assistant-block { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .log-assistant-block:last-child { border-bottom: none; margin-bottom: 0; }
+        .log-task-item { font-size: 12px; color: #d1d1d3; padding: 4px 0 4px 4px; }
+
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: rgba(20, 20, 22, 0.95); border: 1px solid var(--border-color); backdrop-filter: blur(12px);
@@ -223,6 +279,7 @@
                 <button class="tab-btn" onclick="switchTab('tasks-tab', this); loadTasks();">Задачи</button>
                 <button class="tab-btn" onclick="switchTab('settings-tab', this)">Настройки</button>
                 <button class="tab-btn admin-btn" id="admin-tab-btn" style="display:none;" onclick="switchTab('admin-tab', this); loadAdminPanel();">Admin</button>
+                <button class="tab-btn admin-btn" id="logs-tab-btn" style="display:none;" onclick="switchTab('logs-tab', this); loadLogsTab();">Логи</button>
             </div>
         </div>
 
@@ -296,6 +353,14 @@
                         <input type="text" class="form-control" id="task-title-input" placeholder="Название задачи" maxlength="200">
                         <textarea class="form-control" id="task-desc-input" placeholder="Описание (необязательно)" rows="3" style="resize:vertical; font-family:inherit;"></textarea>
                         <div class="task-editor-row">
+                            <select class="form-control" id="task-priority-select">
+                                <option value="low">🟢 Низкий приоритет</option>
+                                <option value="medium" selected>🟡 Средний приоритет</option>
+                                <option value="high">🔴 Высокий приоритет</option>
+                            </select>
+                            <input type="date" class="form-control" id="task-due-input" style="flex: 1 1 160px;">
+                        </div>
+                        <div class="task-editor-row">
                             <select class="form-control" id="task-assignee-select">
                                 <option value="">🌍 Общая задача — видна всем</option>
                             </select>
@@ -346,6 +411,21 @@
             <div class="card">
                 <div class="card-title">👑 Управление ассистентами</div>
                 <div id="admin-data" class="admin-list">
+                    <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="logs-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">🧾 Последние отчёты</div>
+                <div id="logs-feed">
+                    <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📋 Личные задачи по ассистентам</div>
+                <div id="personal-tasks-overview">
                     <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
                 </div>
             </div>
@@ -459,6 +539,10 @@
                 const adminBtn = document.getElementById('admin-tab-btn');
                 adminBtn.style.display = isAdminish ? 'block' : 'none';
                 adminBtn.classList.toggle('is-deputy', isDeputy);
+
+                const logsBtn = document.getElementById('logs-tab-btn');
+                logsBtn.style.display = isAdminish ? 'block' : 'none';
+                logsBtn.classList.toggle('is-deputy', isDeputy);
 
                 document.getElementById('task-editor-toggle-wrap').style.display = isAdminish ? 'block' : 'none';
 
@@ -625,15 +709,34 @@
             assigneeOptionsLoaded = true;
         }
 
+        function avatarColor(name) {
+            let hash = 0;
+            const str = name || '?';
+            for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) % 360;
+            return `hsl(${hash}, 55%, 45%)`;
+        }
+
+        function timeAgo(ts) {
+            const diffMin = Math.floor((new Date() - new Date(ts)) / 60000);
+            if (diffMin < 1) return 'только что';
+            if (diffMin < 60) return `${diffMin} мин назад`;
+            const diffHr = Math.floor(diffMin / 60);
+            if (diffHr < 24) return `${diffHr} ч назад`;
+            return `${Math.floor(diffHr / 24)} дн назад`;
+        }
+
         async function createTask() {
             const title = document.getElementById('task-title-input').value.trim();
             const description = document.getElementById('task-desc-input').value.trim();
             const assignee = document.getElementById('task-assignee-select').value || null;
+            const priority = document.getElementById('task-priority-select').value;
+            const dueDate = document.getElementById('task-due-input').value || null;
 
             if (!title) return showToast('Введи название задачи', true);
 
             const { error } = await supabaseClient.from('tasks').insert([{
-                title, description, assigned_to: assignee, created_by: currentUserData.id, done: false
+                title, description, assigned_to: assignee, created_by: currentUserData.id,
+                status: 'todo', priority, due_date: dueDate
             }]);
 
             if (error) return showToast('Ошибка: ' + error.message, true);
@@ -641,14 +744,10 @@
             document.getElementById('task-title-input').value = '';
             document.getElementById('task-desc-input').value = '';
             document.getElementById('task-assignee-select').value = '';
+            document.getElementById('task-priority-select').value = 'medium';
+            document.getElementById('task-due-input').value = '';
             document.getElementById('task-editor').style.display = 'none';
             showToast('Задача создана');
-            loadTasks();
-        }
-
-        async function toggleTaskDone(taskId, isDone) {
-            const { error } = await supabaseClient.from('tasks').update({ done: isDone }).eq('id', taskId);
-            if (error) { showToast('Ошибка: ' + error.message, true); return; }
             loadTasks();
         }
 
@@ -660,22 +759,199 @@
             loadTasks();
         }
 
-        function renderTaskCard(task, assigneeName) {
-            const isAdminish = currentUserData.role === 'head' || currentUserData.role === 'deputy_head';
-            const tag = task.assigned_to
-                ? `<span class="task-tag personal">Личная${assigneeName ? ' · ' + escapeHtml(assigneeName) : ''}</span>`
-                : `<span class="task-tag general">Общая</span>`;
-            return `
-                <div class="task-card ${task.done ? 'done' : ''}">
-                    <div class="task-row">
-                        <input type="checkbox" class="task-check" ${task.done ? 'checked' : ''} onchange="toggleTaskDone('${task.id}', this.checked)">
-                        <div style="flex:1;">
-                            <div class="task-title">${escapeHtml(task.title)}</div>
-                            ${task.description ? `<div class="task-desc">${escapeHtml(task.description)}</div>` : ''}
-                            <div class="task-meta">${tag}</div>
+        async function submitMyCompletion(taskId) {
+            const { error } = await supabaseClient.from('task_completions').upsert(
+                { task_id: taskId, assistant_id: currentUserData.id, submitted_at: new Date().toISOString(), confirmed: false },
+                { onConflict: 'task_id,assistant_id' }
+            );
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            showToast('Отправлено на проверку');
+            loadTasks();
+        }
+
+        async function cancelMyCompletion(taskId) {
+            const { error } = await supabaseClient.from('task_completions').delete()
+                .eq('task_id', taskId).eq('assistant_id', currentUserData.id);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            loadTasks();
+        }
+
+        async function confirmCompletion(taskId, assistantId, assistantName) {
+            if (!confirm(`Подтвердить выполнение задачи: ${assistantName}?`)) return;
+
+            const { error } = await supabaseClient.from('task_completions').update({
+                confirmed: true, confirmed_by: currentUserData.id, confirmed_at: new Date().toISOString()
+            }).eq('task_id', taskId).eq('assistant_id', assistantId);
+
+            if (error) return showToast('Ошибка: ' + error.message, true);
+
+            const { data: task } = await supabaseClient.from('tasks').select('assigned_to').eq('id', taskId).single();
+            const { data: comps } = await supabaseClient.from('task_completions').select('confirmed').eq('task_id', taskId);
+
+            let totalNeeded = 1;
+            if (task && !task.assigned_to) {
+                const { data: allAssistants } = await supabaseClient.from('assistants').select('id').eq('role', 'assistant');
+                totalNeeded = (allAssistants || []).length;
+            }
+            const confirmedNow = (comps || []).filter(c => c.confirmed).length;
+
+            if (totalNeeded > 0 && confirmedNow >= totalNeeded) {
+                await supabaseClient.from('tasks').update({ status: 'done' }).eq('id', taskId);
+                showToast('🎉 Задача полностью закрыта командой!');
+            } else {
+                showToast(`Подтверждено для ${assistantName}`);
+            }
+            loadTasks();
+        }
+
+        async function updateTaskStatus(taskId, status) {
+            const { error } = await supabaseClient.from('tasks').update({ status }).eq('id', taskId);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            loadTasks();
+        }
+
+        async function updateTaskPriority(taskId, priority) {
+            const { error } = await supabaseClient.from('tasks').update({ priority }).eq('id', taskId);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            loadTasks();
+        }
+
+        async function toggleComments(taskId) {
+            const box = document.getElementById(`comments-${taskId}`);
+            const opening = box.style.display === 'none';
+            box.style.display = opening ? 'block' : 'none';
+            if (opening) loadComments(taskId);
+        }
+
+        async function loadComments(taskId) {
+            const listEl = document.getElementById(`comments-list-${taskId}`);
+            listEl.innerHTML = `<p style="color:var(--text-muted); font-size:12px;">Загрузка...</p>`;
+
+            const [{ data: comments, error }, { data: assistants }] = await Promise.all([
+                supabaseClient.from('task_comments').select('*').eq('task_id', taskId).order('created_at', { ascending: true }),
+                supabaseClient.from('assistants').select('id, name')
+            ]);
+
+            if (error) { listEl.innerHTML = `<p style="color:#ff453a; font-size:12px;">Ошибка: ${error.message}</p>`; return; }
+
+            const nameMap = {};
+            (assistants || []).forEach(a => nameMap[a.id] = a.name);
+
+            if (!comments || comments.length === 0) {
+                listEl.innerHTML = `<p style="color:var(--text-muted); font-size:12px;">Пока тихо. Будь первым.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = comments.map(c => {
+                const name = nameMap[c.author_id] || 'Неизвестный';
+                return `
+                    <div class="comment-item">
+                        <div class="comment-avatar" style="background:${avatarColor(name)}">${name.charAt(0).toUpperCase()}</div>
+                        <div class="comment-body">
+                            <div class="comment-head"><b>${escapeHtml(name)}</b> · ${timeAgo(c.created_at)}</div>
+                            <div class="comment-text">${escapeHtml(c.body)}</div>
                         </div>
                     </div>
-                    ${isAdminish ? `<div class="task-actions"><button class="delete-row-btn" onclick="deleteTask('${task.id}')">Удалить</button></div>` : ''}
+                `;
+            }).join('');
+        }
+
+        async function postComment(taskId) {
+            const input = document.getElementById(`comment-input-${taskId}`);
+            const body = input.value.trim();
+            if (!body) return;
+
+            const { error } = await supabaseClient.from('task_comments').insert([{ task_id: taskId, author_id: currentUserData.id, body }]);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+
+            input.value = '';
+            loadComments(taskId);
+        }
+
+        function renderTaskCard(task, assignees, compMap, assistantMap, isAdminish) {
+            const priorityLabels = { low: 'Низкий', medium: 'Средний', high: 'Высокий' };
+            const priorityFlags = { low: '🟢', medium: '🟡', high: '🔴' };
+            const priority = task.priority || 'medium';
+
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const due = task.due_date ? new Date(task.due_date) : null;
+            const isOverdue = due && due < today && task.status !== 'done';
+            const dueTag = task.due_date
+                ? `<span class="task-tag ${isOverdue ? 'overdue' : 'due'}">${isOverdue ? '🔥 Просрочено · ' : '📅 До '}${due.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</span>`
+                : '';
+
+            const statusLabels = { todo: 'К выполнению', in_progress: 'В работе', done: 'Готово' };
+            const status = task.status || 'todo';
+            const statusControl = isAdminish
+                ? `<select class="status-select status-${status}" onchange="updateTaskStatus('${task.id}', this.value)">
+                       ${Object.entries(statusLabels).map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}
+                   </select>`
+                : `<span class="status-pill status-${status}">${statusLabels[status] || 'К выполнению'}</span>`;
+
+            const priorityControl = isAdminish
+                ? `<select class="status-select" onchange="updateTaskPriority('${task.id}', this.value)">
+                       ${Object.entries(priorityLabels).map(([v, l]) => `<option value="${v}" ${priority === v ? 'selected' : ''}>${priorityFlags[v]} ${l}</option>`).join('')}
+                   </select>`
+                : `<span class="task-tag priority-${priority}">${priorityFlags[priority]} ${priorityLabels[priority]}</span>`;
+
+            const assigneeTag = task.assigned_to
+                ? `<span class="task-tag personal">Личная · ${escapeHtml((assistantMap[task.assigned_to] || {}).name || '?')}</span>`
+                : `<span class="task-tag general">Общая</span>`;
+
+            const total = assignees.length;
+            const confirmedCount = assignees.filter(a => compMap[a.id] && compMap[a.id].confirmed).length;
+
+            const avatarsHtml = assignees.map(a => {
+                const c = compMap[a.id];
+                const st = c ? (c.confirmed ? 'confirmed' : 'pending') : 'todo';
+                const label = st === 'confirmed' ? 'подтверждено' : st === 'pending' ? 'на проверке' : 'не начато';
+                const clickable = isAdminish && st === 'pending';
+                const onclick = clickable ? `onclick="confirmCompletion('${task.id}','${a.id}','${escapeHtml(a.name).replace(/'/g, "\\'")}')"` : '';
+                return `<div class="task-avatar ${st} ${clickable ? 'clickable' : ''}" style="background:${avatarColor(a.name)}" title="${escapeHtml(a.name)} — ${label}" ${onclick}>${(a.name || '?').charAt(0).toUpperCase()}</div>`;
+            }).join('');
+
+            const progressHtml = total > 0 ? `
+                <div class="task-progress-row">
+                    <div class="task-avatars">${avatarsHtml}</div>
+                    <span class="task-progress-frac">${confirmedCount}/${total} подтверждено</span>
+                </div>
+                ${total > 1 ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${(confirmedCount / total * 100)}%"></div></div>` : ''}
+            ` : '';
+
+            const myId = currentUserData.id;
+            const amAssignee = assignees.some(a => a.id === myId);
+            let myControl = '';
+            if (amAssignee && !isAdminish) {
+                const mine = compMap[myId];
+                if (!mine) {
+                    myControl = `<button class="task-mark-btn" onclick="submitMyCompletion('${task.id}')">✓ Отметить выполненной</button>`;
+                } else if (!mine.confirmed) {
+                    myControl = `<div class="task-pending-note">⏳ Отправлено на проверку <button class="task-cancel-btn" onclick="cancelMyCompletion('${task.id}')">отменить</button></div>`;
+                } else {
+                    myControl = `<div class="task-confirmed-note">✅ Подтверждено</div>`;
+                }
+            }
+
+            return `
+                <div class="task-card">
+                    <div class="task-title-row">
+                        <span class="task-title">${escapeHtml(task.title)}</span>
+                    </div>
+                    ${task.description ? `<div class="task-desc">${escapeHtml(task.description)}</div>` : ''}
+                    <div class="task-meta">${assigneeTag}${dueTag}${priorityControl}${statusControl}</div>
+                    ${progressHtml}
+                    ${myControl}
+                    <div class="task-footer">
+                        <button class="comments-toggle-btn" onclick="toggleComments('${task.id}')">💬 Комментарии</button>
+                        ${isAdminish ? `<button class="delete-row-btn" onclick="deleteTask('${task.id}')">Удалить</button>` : ''}
+                    </div>
+                    <div class="task-comments" id="comments-${task.id}" style="display:none;">
+                        <div class="comments-list" id="comments-list-${task.id}"></div>
+                        <div class="comment-input-row">
+                            <input type="text" class="form-control comment-input" id="comment-input-${task.id}" placeholder="Написать комментарий...">
+                            <button class="comment-send-btn" onclick="postComment('${task.id}')">➤</button>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -685,26 +961,35 @@
             const container = document.getElementById('tasks-list');
             const isAdminish = currentUserData.role === 'head' || currentUserData.role === 'deputy_head';
 
-            const { data: tasks, error } = await supabaseClient
-                .from('tasks')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const [tasksRes, assistantsRes, completionsRes] = await Promise.all([
+                supabaseClient.from('tasks').select('*').order('created_at', { ascending: false }),
+                supabaseClient.from('assistants').select('id, name, role'),
+                supabaseClient.from('task_completions').select('*')
+            ]);
 
-            if (error) {
-                container.innerHTML = `<p style="text-align:center; color:#ff453a; padding:20px 0;">Ошибка: ${error.message}</p>`;
+            if (tasksRes.error) {
+                container.innerHTML = `<p style="text-align:center; color:#ff453a; padding:20px 0;">Ошибка: ${tasksRes.error.message}</p>`;
                 return;
             }
 
-            if (!tasks || tasks.length === 0) {
+            const tasks = tasksRes.data || [];
+            const allAssistants = assistantsRes.data || [];
+            const completions = completionsRes.data || [];
+
+            if (tasks.length === 0) {
                 container.innerHTML = `<p class="tasks-empty">Задач пока нет. Можешь расслабиться.</p>`;
                 return;
             }
 
-            let nameMap = {};
-            if (isAdminish) {
-                const { data: assistants } = await supabaseClient.from('assistants').select('id, name');
-                (assistants || []).forEach((a) => { nameMap[a.id] = a.name; });
-            }
+            const assistantMap = {};
+            allAssistants.forEach(a => assistantMap[a.id] = a);
+            const onlyAssistants = allAssistants.filter(a => a.role === 'assistant');
+
+            const compByTask = {};
+            completions.forEach(c => {
+                if (!compByTask[c.task_id]) compByTask[c.task_id] = {};
+                compByTask[c.task_id][c.assistant_id] = c;
+            });
 
             const generalTasks = tasks.filter(t => !t.assigned_to);
             const personalTasks = tasks.filter(t => t.assigned_to);
@@ -712,14 +997,68 @@
             let html = '';
             if (generalTasks.length > 0) {
                 html += `<div class="tasks-section-title">🌍 Общие задачи</div>`;
-                html += generalTasks.map(t => renderTaskCard(t)).join('');
+                html += generalTasks.map(t => renderTaskCard(t, onlyAssistants, compByTask[t.id] || {}, assistantMap, isAdminish)).join('');
             }
             if (personalTasks.length > 0) {
                 html += `<div class="tasks-section-title">👤 Личные задачи</div>`;
-                html += personalTasks.map(t => renderTaskCard(t, nameMap[t.assigned_to])).join('');
+                html += personalTasks.map(t => {
+                    const a = assistantMap[t.assigned_to];
+                    return renderTaskCard(t, a ? [a] : [], compByTask[t.id] || {}, assistantMap, isAdminish);
+                }).join('');
             }
 
             container.innerHTML = html || `<p class="tasks-empty">Задач пока нет. Можешь расслабиться.</p>`;
+        }
+
+        async function loadLogsTab() {
+            if (!currentUserData || (currentUserData.role !== 'head' && currentUserData.role !== 'deputy_head')) return;
+
+            const feedEl = document.getElementById('logs-feed');
+            const overviewEl = document.getElementById('personal-tasks-overview');
+
+            const [logsRes, assistantsRes, tasksRes, compRes] = await Promise.all([
+                supabaseClient.from('work_logs').select('*').order('created_at', { ascending: false }).limit(40),
+                supabaseClient.from('assistants').select('id, name, role').eq('role', 'assistant').order('name'),
+                supabaseClient.from('tasks').select('*').not('assigned_to', 'is', null),
+                supabaseClient.from('task_completions').select('*')
+            ]);
+
+            if (logsRes.error) {
+                feedEl.innerHTML = `<p style="text-align:center; color:#ff453a; padding:20px 0;">Ошибка: ${logsRes.error.message}</p>`;
+            } else if (!logsRes.data || logsRes.data.length === 0) {
+                feedEl.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px 0;">Пока пусто</p>`;
+            } else {
+                feedEl.innerHTML = logsRes.data.map(l => `
+                    <div class="log-row">
+                        <div>
+                            <div class="log-row-title">${escapeHtml(l.assistant_name)} — ${escapeHtml(l.task_type)}</div>
+                            <div class="log-row-meta">${timeAgo(l.created_at)}${l.proof_url ? ` · <a href="${escapeHtml(l.proof_url)}" target="_blank" style="color:var(--deputy);">доказательство</a>` : ''}</div>
+                        </div>
+                        <span class="points-badge">+${l.points_awarded || 0} XP</span>
+                    </div>
+                `).join('');
+            }
+
+            const compByTask = {};
+            (compRes.data || []).forEach(c => { compByTask[c.task_id] = c; });
+            const personalTasks = tasksRes.data || [];
+
+            overviewEl.innerHTML = (assistantsRes.data || []).map(a => {
+                const theirTasks = personalTasks.filter(t => t.assigned_to === a.id);
+                const taskRows = theirTasks.length
+                    ? theirTasks.map(t => {
+                        const c = compByTask[t.id];
+                        const icon = c ? (c.confirmed ? '✅' : '⏳') : '◻️';
+                        return `<div class="log-task-item">${icon} ${escapeHtml(t.title)}</div>`;
+                    }).join('')
+                    : `<div class="log-task-item" style="color:var(--text-muted);">нет личных задач</div>`;
+                return `
+                    <div class="log-assistant-block">
+                        <div class="admin-row-name">${escapeHtml(a.name)}</div>
+                        ${taskRows}
+                    </div>
+                `;
+            }).join('');
         }
 
         function formatLastSeen(ts) {
