@@ -89,7 +89,18 @@
         .app-navbar h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
         .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border: 1px solid rgba(240,199,94,0.3); padding: 4px 10px; border-radius: 20px; }
         .head-crown.role-deputy { color: var(--deputy); background: var(--deputy-soft); border-color: rgba(143,184,255,0.3); }
-        .nav-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
+
+        .notif-bell { position: relative; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); width: 36px; height: 36px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+        .notif-bell:hover { background: rgba(255,255,255,0.08); }
+        .notif-badge { position: absolute; top: -4px; right: -4px; background: var(--primary); color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+        .notif-dropdown { position: absolute; top: 44px; left: 0; width: 280px; max-width: 85vw; max-height: 360px; overflow-y: auto; background: rgba(20,20,22,0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: 14px; padding: 12px; z-index: 50; box-shadow: 0 16px 36px rgba(0,0,0,0.5); }
+        .notif-dropdown-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; }
+        .notif-item { padding: 10px 8px; border-radius: 8px; font-size: 12px; color: #d1d1d3; border-bottom: 1px solid rgba(255,255,255,0.04); overflow-wrap: break-word; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item.unread { background: rgba(214,26,76,0.08); color: #fff; }
+        .notif-item-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+        .notif-empty { text-align: center; color: var(--text-muted); padding: 16px 0; font-size: 12px; }
+        .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; row-gap: 6px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
         .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .tab-btn.active { background: rgba(255,255,255,0.06); color: #fff; }
         .tab-btn.admin-btn { color: var(--gold); }
@@ -204,8 +215,11 @@
         .comment-send-btn { background: var(--primary); border: none; color: #fff; width: 36px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 
         .log-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 10px; }
-        .log-row-title { font-size: 13px; font-weight: 600; color: #fff; }
-        .log-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .log-row > div:first-child { flex: 1 1 auto; min-width: 0; }
+        .log-row .points-badge { flex-shrink: 0; white-space: nowrap; }
+        .log-row-title { font-size: 13px; font-weight: 600; color: #fff; overflow-wrap: break-word; word-break: break-word; }
+        .log-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; overflow-wrap: break-word; word-break: break-word; }
+        .log-row-meta a { word-break: break-all; }
         .log-assistant-block { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .log-assistant-block:last-child { border-bottom: none; margin-bottom: 0; }
         .log-task-item { font-size: 12px; color: #d1d1d3; padding: 4px 0 4px 4px; }
@@ -268,11 +282,18 @@
     <!-- ОСНОВНОЙ ЭКРАН -->
     <div id="dashboard-view" class="view-container">
         <div class="app-navbar">
-            <div>
+            <div style="display:flex; align-items:center; gap:12px; position:relative;">
                 <h1>
                     <span id="current-user-name">Загрузка...</span>
                     <span id="head-crown-badge" class="head-crown">👑 Head</span>
                 </h1>
+                <button class="notif-bell" id="notif-bell-btn" onclick="toggleNotifications()">
+                    🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-dropdown" style="display:none;">
+                    <div class="notif-dropdown-title">Уведомления</div>
+                    <div id="notif-list"></div>
+                </div>
             </div>
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab('workspace-tab', this)">Панель</button>
@@ -440,6 +461,7 @@
 
         let isRegisterMode = false;
         let currentUserData = null;
+        let notifPollStarted = false;
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
@@ -558,6 +580,12 @@
                 document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
                 document.getElementById('dashboard-view').classList.add('active');
                 loadLeaderboard();
+                loadNotifications();
+
+                if (!notifPollStarted) {
+                    notifPollStarted = true;
+                    setInterval(loadNotifications, 30000);
+                }
 
                 // Фиксируем время последнего визита. Не блокирует вход, если колонки last_seen ещё нет в БД.
                 supabaseClient.from('assistants').update({ last_seen: new Date().toISOString() }).eq('id', user.id)
@@ -725,6 +753,64 @@
             return `${Math.floor(diffHr / 24)} дн назад`;
         }
 
+        async function loadNotifications() {
+            if (!currentUserData) return;
+            const { data, error } = await supabaseClient
+                .from('notifications')
+                .select('*')
+                .eq('user_id', currentUserData.id)
+                .order('created_at', { ascending: false })
+                .limit(30);
+
+            if (error) return;
+
+            const unread = (data || []).filter(n => !n.read).length;
+            const badge = document.getElementById('notif-badge');
+            badge.style.display = unread > 0 ? 'flex' : 'none';
+            badge.innerText = unread > 9 ? '9+' : unread;
+
+            const listEl = document.getElementById('notif-list');
+            if (!data || data.length === 0) {
+                listEl.innerHTML = `<p class="notif-empty">Пока ничего нового</p>`;
+                return;
+            }
+
+            listEl.innerHTML = data.map(n => `
+                <div class="notif-item ${n.read ? '' : 'unread'}">
+                    ${escapeHtml(n.message)}
+                    <div class="notif-item-time">${timeAgo(n.created_at)}</div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleNotifications() {
+            const dropdown = document.getElementById('notif-dropdown');
+            const opening = dropdown.style.display === 'none';
+            dropdown.style.display = opening ? 'block' : 'none';
+            if (opening) {
+                await loadNotifications();
+                await supabaseClient.from('notifications').update({ read: true }).eq('user_id', currentUserData.id).eq('read', false);
+                setTimeout(() => { document.getElementById('notif-badge').style.display = 'none'; }, 600);
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notif-dropdown');
+            const bellBtn = document.getElementById('notif-bell-btn');
+            if (dropdown && dropdown.style.display !== 'none' && !dropdown.contains(e.target) && e.target !== bellBtn) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        async function notifyUser(userId, message) {
+            await supabaseClient.from('notifications').insert([{ user_id: userId, message }]);
+        }
+
+        async function notifyMany(userIds, message) {
+            if (!userIds || userIds.length === 0) return;
+            await supabaseClient.from('notifications').insert(userIds.map(id => ({ user_id: id, message })));
+        }
+
         async function createTask() {
             const title = document.getElementById('task-title-input').value.trim();
             const description = document.getElementById('task-desc-input').value.trim();
@@ -740,6 +826,13 @@
             }]);
 
             if (error) return showToast('Ошибка: ' + error.message, true);
+
+            if (assignee) {
+                notifyUser(assignee, `Новая личная задача: «${title}»`);
+            } else {
+                const { data: allAssistants } = await supabaseClient.from('assistants').select('id').eq('role', 'assistant');
+                notifyMany((allAssistants || []).map(a => a.id), `Новая общая задача: «${title}»`);
+            }
 
             document.getElementById('task-title-input').value = '';
             document.getElementById('task-desc-input').value = '';
@@ -1182,6 +1275,10 @@
             if (error) {
                 showToast('Ошибка сохранения: ' + error.message, true);
                 return;
+            }
+
+            if (delta) {
+                notifyUser(userId, `Тебе начислено ${delta > 0 ? '+' : ''}${delta} XP. Баланс: ${newPoints} XP`);
             }
 
             showToast(delta ? `Начислено ${delta > 0 ? '+' : ''}${delta} XP. Всего: ${newPoints} XP` : 'Изменения сохранены');
