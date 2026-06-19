@@ -177,6 +177,9 @@
         .task-editor-row > * { flex: 1 1 160px; min-width: 0; }
         .tasks-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; margin: 22px 0 12px; }
         .tasks-section-title:first-child { margin-top: 0; }
+        .tasks-done-toggle { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; margin: 22px 0 12px; cursor: pointer; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); user-select: none; }
+        .tasks-done-toggle:hover { color: #fff; }
+        .tasks-done-list { animation: fadeIn 0.2s ease; }
         .tasks-empty { text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 14px; }
 
         .task-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid #4a4a4e; border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: border-color 0.2s; }
@@ -1208,8 +1211,10 @@
             comments.forEach(c => { commentCountByTask[c.task_id] = (commentCountByTask[c.task_id] || 0) + 1; });
             tasks.forEach(t => { t._commentCount = commentCountByTask[t.id] || 0; });
 
-            const generalTasks = tasks.filter(t => !t.assigned_to);
-            const personalTasks = tasks.filter(t => t.assigned_to);
+            const activeTasks = tasks.filter(t => t.status !== 'done');
+            const doneTasks = tasks.filter(t => t.status === 'done');
+            const generalTasks = activeTasks.filter(t => !t.assigned_to);
+            const personalTasks = activeTasks.filter(t => t.assigned_to);
 
             let html = '';
             if (generalTasks.length > 0) {
@@ -1223,8 +1228,29 @@
                     return renderTaskCard(t, a ? [a] : [], compByTask[t.id] || {}, assistantMap, isAdminish);
                 }).join('');
             }
+            if (doneTasks.length > 0) {
+                html += `
+                    <div class="tasks-done-toggle" onclick="toggleDoneTasks()">
+                        <span id="done-toggle-icon">▸</span> ✅ Выполненные (${doneTasks.length})
+                    </div>
+                    <div class="tasks-done-list" id="tasks-done-list" style="display:none;">
+                        ${doneTasks.map(t => {
+                            const a = t.assigned_to ? (assistantMap[t.assigned_to] ? [assistantMap[t.assigned_to]] : []) : onlyAssistants;
+                            return renderTaskCard(t, a, compByTask[t.id] || {}, assistantMap, isAdminish);
+                        }).join('')}
+                    </div>
+                `;
+            }
 
             container.innerHTML = html || `<p class="tasks-empty">Задач пока нет. Можешь расслабиться.</p>`;
+        }
+
+        function toggleDoneTasks() {
+            const list = document.getElementById('tasks-done-list');
+            const icon = document.getElementById('done-toggle-icon');
+            const opening = list.style.display === 'none';
+            list.style.display = opening ? 'block' : 'none';
+            icon.innerText = opening ? '▾' : '▸';
         }
 
         async function loadLogsTab() {
