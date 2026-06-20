@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-main: #0a0a0c;
@@ -24,6 +25,8 @@
             --gold-soft: rgba(240, 199, 94, 0.12);
             --deputy: #8fb8ff;
             --deputy-soft: rgba(143, 184, 255, 0.12);
+            --viewer: #c79bf0;
+            --viewer-soft: rgba(199, 155, 240, 0.12);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -104,6 +107,8 @@
         .nav-link.admin-link.active { background: var(--gold-soft); color: var(--gold); }
         .nav-link.admin-link.is-deputy { color: var(--deputy); }
         .nav-link.admin-link.is-deputy.active { background: var(--deputy-soft); color: var(--deputy); }
+        .nav-link.admin-link.is-viewer { color: var(--viewer); }
+        .nav-link.admin-link.is-viewer.active { background: var(--viewer-soft); color: var(--viewer); }
         .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); }
 
         .mobile-topbar { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: rgba(10,10,12,0.88); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 30; }
@@ -128,6 +133,7 @@
         .greeting span#current-user-name { overflow-wrap: break-word; }
         .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border: 1px solid rgba(240,199,94,0.3); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
         .head-crown.role-deputy { color: var(--deputy); background: var(--deputy-soft); border-color: rgba(143,184,255,0.3); }
+        .head-crown.role-viewer { color: var(--viewer); background: var(--viewer-soft); border-color: rgba(199,155,240,0.3); }
 
         .bottom-nav { display: none; }
 
@@ -138,6 +144,7 @@
         .stat-box h3 { font-size: 23px; color: #fff; font-weight: 700; letter-spacing: -0.3px; overflow-wrap: break-word; }
         .stat-box.gold { border-color: rgba(240,199,94,0.25); background: linear-gradient(160deg, var(--gold-soft), transparent); }
         .stat-box.silver { border-color: rgba(143,184,255,0.25); background: linear-gradient(160deg, var(--deputy-soft), transparent); }
+        .stat-box.viewer { border-color: rgba(199,155,240,0.25); background: linear-gradient(160deg, var(--viewer-soft), transparent); }
 
         .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
         .tab-content { display: none; }
@@ -256,6 +263,8 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+        img.emoji { height: 1.15em; width: 1.15em; vertical-align: -0.2em; margin: 0 0.02em 0 0.05em; }
+
         @media (max-width: 860px) {
             .sidebar { display: none; }
             .mobile-topbar { display: flex; }
@@ -273,6 +282,7 @@
             .bottom-nav-btn.admin-link { color: var(--gold); }
             .bottom-nav-btn.admin-link.active { color: var(--gold); }
             .bottom-nav-btn.admin-link.is-deputy { color: var(--deputy); }
+            .bottom-nav-btn.admin-link.is-viewer { color: var(--viewer); }
         }
     </style>
 </head>
@@ -308,6 +318,16 @@
             <div class="auth-switch">
                 <p id="auth-toggle-text">Впервые тут? <span onclick="toggleAuthMode()">Создать аккаунт</span></p>
             </div>
+        </div>
+    </div>
+
+    <div id="pending-view" class="screen">
+        <div class="auth-card" style="text-align: center;">
+            <div class="auth-logo">⏳</div>
+            <h2 class="auth-title">Заявка на рассмотрении</h2>
+            <p class="auth-subtitle">Доступ к команде Civil выдаёт руководство вручную. Заявка отправлена — дождись подтверждения, потом просто зайди ещё раз.</p>
+            <button class="btn-primary" style="background: rgba(255,255,255,0.06); box-shadow: none;" onclick="checkSession()">Проверить ещё раз</button>
+            <button class="btn-primary" style="background: rgba(255,69,58,0.1); color: #ff453a; box-shadow: none; margin-top: 10px;" onclick="logOut()">Выйти</button>
         </div>
     </div>
 
@@ -461,6 +481,10 @@
                 </div>
 
                 <div id="admin-tab" class="tab-content">
+                    <div class="card" id="pending-approvals-card" style="display:none;">
+                        <div class="card-title">🆕 Заявки на доступ</div>
+                        <div id="pending-approvals-list" class="admin-list"></div>
+                    </div>
                     <div class="card">
                         <div class="card-title">👑 Управление ассистентами</div>
                         <div id="admin-data" class="admin-list">
@@ -603,34 +627,48 @@
                 }
 
                 currentUserData = profile;
+
+                if (!profile.approved) {
+                    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+                    document.getElementById('pending-view').classList.add('active');
+                    return;
+                }
+
                 document.getElementById('current-user-name').innerText = profile.name;
                 document.getElementById('stat-xp').innerText = `${profile.points || 0} XP`;
                 document.getElementById('stat-tasks').innerText = `${profile.tasks_count || 0} шт`;
 
-                const roleLabels = { head: 'Head of Civil', deputy_head: 'Deputy Head of Civil', assistant: 'Civil Assistant' };
-                const roleColors = { head: '#f0c75e', deputy_head: '#8fb8ff', assistant: 'var(--primary)' };
+                const roleLabels = { head: 'Head of Civil', deputy_head: 'Deputy Head of Civil', founder: 'Founder', manager: 'Manager', assistant: 'Civil Assistant' };
+                const roleColors = { head: '#f0c75e', deputy_head: '#8fb8ff', founder: '#c79bf0', manager: '#c79bf0', assistant: 'var(--primary)' };
                 const roleDisplay = document.getElementById('user-role-display');
                 roleDisplay.innerText = roleLabels[profile.role] || 'Civil Assistant';
                 roleDisplay.style.color = roleColors[profile.role] || 'var(--primary)';
 
                 const isHead = profile.role === 'head';
                 const isDeputy = profile.role === 'deputy_head';
-                const isAdminish = isHead || isDeputy;
+                const isFounder = profile.role === 'founder';
+                const isManager = profile.role === 'manager';
+                const isViewerRole = isFounder || isManager;
+                const canEdit = isHead || isDeputy;
+                const isPrivileged = canEdit || isViewerRole;
 
                 document.querySelectorAll('.admin-link').forEach(el => {
-                    el.style.display = isAdminish ? '' : 'none';
+                    el.style.display = isPrivileged ? '' : 'none';
                     el.classList.toggle('is-deputy', isDeputy);
+                    el.classList.toggle('is-viewer', isViewerRole);
                 });
-                document.getElementById('task-editor-toggle-wrap').style.display = isAdminish ? 'block' : 'none';
+                document.getElementById('task-editor-toggle-wrap').style.display = canEdit ? 'block' : 'none';
 
                 const crownBadge = document.getElementById('head-crown-badge');
-                crownBadge.style.display = isAdminish ? 'inline-flex' : 'none';
+                crownBadge.style.display = isPrivileged ? 'inline-flex' : 'none';
                 crownBadge.classList.toggle('role-deputy', isDeputy);
-                crownBadge.innerText = isHead ? '👑 Head' : isDeputy ? '🛡️ Deputy' : '';
+                crownBadge.classList.toggle('role-viewer', isViewerRole);
+                crownBadge.innerText = isHead ? '👑 Head' : isDeputy ? '🛡️ Deputy' : isFounder ? '🏛️ Founder' : isManager ? '🧭 Manager' : '';
 
                 const roleStatBox = document.getElementById('role-stat-box');
                 roleStatBox.classList.toggle('gold', isHead);
                 roleStatBox.classList.toggle('silver', isDeputy);
+                roleStatBox.classList.toggle('viewer', isViewerRole);
 
                 document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
                 document.getElementById('dashboard-view').classList.add('active');
@@ -681,8 +719,11 @@
                             { id: data.user.id, name: rawName, email: systemEmail, points: 0, tasks_count: 0, role: 'assistant' }
                         ]);
                         if (dbError) throw new Error('Скрытая ошибка БД: ' + dbError.message);
+
+                        const { data: leaders } = await supabaseClient.from('assistants').select('id').in('role', ['head', 'deputy_head']);
+                        notifyMany((leaders || []).map(l => l.id), `Новая заявка на доступ: ${rawName}`);
                     }
-                    showToast('Успешная регистрация! Загрузка...');
+                    showToast('Заявка отправлена! Дождись одобрения руководства.');
                 } else {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email: systemEmail, password });
                     if (error) throw new Error('Неверный никнейм или пароль');
@@ -829,24 +870,75 @@
         }
 
         async function loadAdminPanel() {
-            if (!currentUserData || (currentUserData.role !== 'head' && currentUserData.role !== 'deputy_head')) return;
+            const role = currentUserData ? currentUserData.role : null;
+            const canEdit = role === 'head' || role === 'deputy_head';
+            const isViewerRole = role === 'founder' || role === 'manager';
+            if (!currentUserData || !(canEdit || isViewerRole)) return;
 
             const { data: assistants, error } = await supabaseClient
                 .from('assistants').select('*').order('points', { ascending: false });
             const container = document.getElementById('admin-data');
+            const pendingCard = document.getElementById('pending-approvals-card');
+            const pendingContainer = document.getElementById('pending-approvals-list');
 
             if (error) {
                 container.innerHTML = `<p style="text-align:center; color:#ff453a; padding:20px 0;">Ошибка: ${error.message}</p>`;
+                if (pendingCard) pendingCard.style.display = 'none';
                 return;
             }
-            if (!assistants || assistants.length === 0) {
+
+            const pending = (assistants || []).filter(a => !a.approved);
+            const approved = (assistants || []).filter(a => a.approved);
+
+            if (pendingCard) {
+                if (canEdit && pending.length > 0) {
+                    pendingCard.style.display = 'block';
+                    pendingContainer.innerHTML = pending.map(u => `
+                        <div class="admin-row">
+                            <div class="admin-row-name">${escapeHtml(u.name)} <span style="color:var(--text-muted); font-weight:400; font-size:12px;">— ${escapeHtml(u.email || '')}</span></div>
+                            <div class="admin-row-controls">
+                                <button class="save-row-btn" onclick="adminApproveUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">✅ Одобрить</button>
+                                <button class="delete-row-btn" onclick="adminRejectUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">❌ Отклонить</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    pendingCard.style.display = 'none';
+                }
+            }
+
+            if (!approved || approved.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px 0;">Список пуст</p>`;
                 return;
             }
 
-            const isCurrentHead = currentUserData.role === 'head';
+            const isCurrentHead = role === 'head';
+            const roleLabelMap = { head: '👑 Head', deputy_head: '🛡️ Deputy Head', founder: '🏛️ Founder', manager: '🧭 Manager', assistant: 'Assistant' };
 
-            container.innerHTML = assistants.map((user) => {
+            if (!canEdit) {
+                container.innerHTML = approved.map((user) => {
+                    const isSelf = currentUserData.id === user.id;
+                    const profileBlock = `
+                        <div class="admin-row-profile" id="profile-${user.id}" style="display:none;">
+                            <span><b>Email:</b> ${escapeHtml(user.email || '—')}</span>
+                            <span><b>Отчётов:</b> ${user.tasks_count || 0}</span>
+                            <span><b>Последний визит:</b> ${formatLastSeen(user.last_seen)}</span>
+                        </div>
+                    `;
+                    return `
+                        <div class="admin-row">
+                            <div class="admin-row-name">${escapeHtml(user.name)}${isSelf ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''} <span style="color:var(--text-muted); font-weight:400; font-size:12px;">— ${roleLabelMap[user.role] || user.role} · ${user.points || 0} XP</span></div>
+                            <div class="admin-row-controls">
+                                <button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">👁 Профиль</button>
+                            </div>
+                            ${profileBlock}
+                        </div>
+                    `;
+                }).join('');
+                return;
+            }
+
+            container.innerHTML = approved.map((user) => {
                 const isSelf = currentUserData.id === user.id;
                 const safeName = user.name.replace(/'/g, "\\'");
                 const profileBlock = `
@@ -858,17 +950,22 @@
                 `;
                 const viewBtn = `<button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">👁 Профиль</button>`;
 
-                if (user.role === 'head' && !isCurrentHead) {
+                const isLockedRole = user.role === 'head' || user.role === 'founder' || user.role === 'manager';
+                if (isLockedRole && !isCurrentHead) {
                     return `
                         <div class="admin-row">
-                            <div class="admin-row-name">${escapeHtml(user.name)} <span class="role-lock-note">— 👑 Head, ${user.points || 0} XP, управление недоступно</span></div>
+                            <div class="admin-row-name">${escapeHtml(user.name)} <span class="role-lock-note">— ${roleLabelMap[user.role]}, ${user.points || 0} XP, управление недоступно</span></div>
                             <div class="admin-row-controls">${viewBtn}</div>
                             ${profileBlock}
                         </div>
                     `;
                 }
 
-                const headOption = isCurrentHead ? `<option value="head" ${user.role === 'head' ? 'selected' : ''}>Head</option>` : '';
+                const headOnlyOptions = isCurrentHead ? `
+                    <option value="head" ${user.role === 'head' ? 'selected' : ''}>Head</option>
+                    <option value="founder" ${user.role === 'founder' ? 'selected' : ''}>Founder</option>
+                    <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>Manager</option>
+                ` : '';
                 const canDelete = !isSelf && (isCurrentHead || user.role === 'assistant');
 
                 return `
@@ -878,7 +975,7 @@
                             <select class="role-select" id="role-${user.id}">
                                 <option value="assistant" ${user.role === 'assistant' ? 'selected' : ''}>Assistant</option>
                                 <option value="deputy_head" ${user.role === 'deputy_head' ? 'selected' : ''}>Deputy Head</option>
-                                ${headOption}
+                                ${headOnlyOptions}
                             </select>
                             <input type="number" class="points-input" id="points-${user.id}" placeholder="+ баллов">
                             <button class="save-row-btn" onclick="adminSaveUser('${user.id}')">Сохранить</button>
@@ -889,6 +986,22 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        async function adminApproveUser(userId, userName) {
+            const { error } = await supabaseClient.from('assistants').update({ approved: true }).eq('id', userId);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            notifyUser(userId, `Твоя заявка одобрена. Добро пожаловать в команду!`);
+            showToast(`«${userName}» одобрен`);
+            loadAdminPanel();
+        }
+
+        async function adminRejectUser(userId, userName) {
+            if (!confirm(`Отклонить заявку «${userName}»? Запись удалится из базы (логин в Supabase Auth останется — почисти его вручную в Authentication → Users при необходимости).`)) return;
+            const { error } = await supabaseClient.from('assistants').delete().eq('id', userId);
+            if (error) return showToast('Ошибка: ' + error.message, true);
+            showToast(`Заявка «${userName}» отклонена`);
+            loadAdminPanel();
         }
 
         async function adminDeleteUser(userId, userName) {
@@ -1082,7 +1195,12 @@
             loadComments(taskId);
         }
 
-        function renderTaskCard(task, assignees, compMap, assistantMap, isAdminish) {
+        function renderTaskCard(task, assignees, compMap, assistantMap) {
+            const role = currentUserData.role;
+            const canEdit = role === 'head' || role === 'deputy_head';
+            const isAssistant = role === 'assistant';
+            const isViewerRole = role === 'founder' || role === 'manager';
+
             const today = new Date(); today.setHours(0, 0, 0, 0);
             const due = task.due_date ? new Date(task.due_date) : null;
             const isOverdue = due && due < today && task.status !== 'done';
@@ -1098,7 +1216,7 @@
             const status = task.status || 'todo';
             const sm = statusMeta[status] || statusMeta.todo;
 
-            const statusControl = isAdminish
+            const statusControl = canEdit
                 ? `<select class="status-select status-${status}" onchange="updateTaskStatus('${task.id}', this.value)">
                        ${Object.entries(statusMeta).map(([v, m]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${m.icon} ${m.label}</option>`).join('')}
                    </select>`
@@ -1115,7 +1233,7 @@
                 const c = compMap[a.id];
                 const st = c ? (c.confirmed ? 'confirmed' : 'pending') : 'todo';
                 const label = st === 'confirmed' ? 'подтверждено' : st === 'pending' ? 'на проверке' : 'не начато';
-                const clickable = isAdminish && st === 'pending';
+                const clickable = canEdit && st === 'pending';
                 const onclick = clickable ? `onclick="confirmCompletion('${task.id}','${a.id}','${escapeHtml(a.name).replace(/'/g, "\\'")}')"` : '';
                 return `<div class="task-avatar ${st} ${clickable ? 'clickable' : ''}" style="background:${avatarColor(a.name)}" title="${escapeHtml(a.name)} — ${label}" ${onclick}>${(a.name || '?').charAt(0).toUpperCase()}</div>`;
             }).join('');
@@ -1131,7 +1249,7 @@
             const myId = currentUserData.id;
             const amAssignee = assignees.some(a => a.id === myId);
             let myControl = '';
-            if (amAssignee && !isAdminish) {
+            if (amAssignee && isAssistant) {
                 const mine = compMap[myId];
                 if (!mine) {
                     myControl = `<button class="task-mark-btn" onclick="submitMyCompletion('${task.id}')">✓ Отметить выполненной</button>`;
@@ -1144,6 +1262,12 @@
 
             const commentCount = task._commentCount || 0;
             const commentLabel = commentCount > 0 ? `💬 ${commentCount}` : '💬 Комментировать';
+            const commentInputRow = isViewerRole ? '' : `
+                <div class="comment-input-row">
+                    <input type="text" class="comment-input" id="comment-input-${task.id}" placeholder="Написать комментарий...">
+                    <button class="comment-send-btn" onclick="postComment('${task.id}')">➤</button>
+                </div>
+            `;
 
             return `
                 <div class="task-card status-${status}">
@@ -1157,14 +1281,11 @@
                     ${myControl}
                     <div class="task-footer">
                         <button class="comments-toggle-btn" onclick="toggleComments('${task.id}')">${commentLabel}</button>
-                        ${isAdminish ? `<button class="delete-row-btn" onclick="deleteTask('${task.id}')">Удалить</button>` : ''}
+                        ${canEdit ? `<button class="delete-row-btn" onclick="deleteTask('${task.id}')">Удалить</button>` : ''}
                     </div>
                     <div class="task-comments" id="comments-${task.id}" style="display:none;">
                         <div class="comments-list" id="comments-list-${task.id}"></div>
-                        <div class="comment-input-row">
-                            <input type="text" class="comment-input" id="comment-input-${task.id}" placeholder="Написать комментарий...">
-                            <button class="comment-send-btn" onclick="postComment('${task.id}')">➤</button>
-                        </div>
+                        ${commentInputRow}
                     </div>
                 </div>
             `;
@@ -1173,7 +1294,6 @@
         async function loadTasks() {
             if (!currentUserData) return;
             const container = document.getElementById('tasks-list');
-            const isAdminish = currentUserData.role === 'head' || currentUserData.role === 'deputy_head';
 
             const [tasksRes, assistantsRes, completionsRes, commentsRes] = await Promise.all([
                 supabaseClient.from('tasks').select('*').order('created_at', { ascending: false }),
@@ -1219,13 +1339,13 @@
             let html = '';
             if (generalTasks.length > 0) {
                 html += `<div class="tasks-section-title">🌍 Общие задачи</div>`;
-                html += generalTasks.map(t => renderTaskCard(t, onlyAssistants, compByTask[t.id] || {}, assistantMap, isAdminish)).join('');
+                html += generalTasks.map(t => renderTaskCard(t, onlyAssistants, compByTask[t.id] || {}, assistantMap)).join('');
             }
             if (personalTasks.length > 0) {
                 html += `<div class="tasks-section-title">👤 Личные задачи</div>`;
                 html += personalTasks.map(t => {
                     const a = assistantMap[t.assigned_to];
-                    return renderTaskCard(t, a ? [a] : [], compByTask[t.id] || {}, assistantMap, isAdminish);
+                    return renderTaskCard(t, a ? [a] : [], compByTask[t.id] || {}, assistantMap);
                 }).join('');
             }
             if (doneTasks.length > 0) {
@@ -1236,7 +1356,7 @@
                     <div class="tasks-done-list" id="tasks-done-list" style="display:none;">
                         ${doneTasks.map(t => {
                             const a = t.assigned_to ? (assistantMap[t.assigned_to] ? [assistantMap[t.assigned_to]] : []) : onlyAssistants;
-                            return renderTaskCard(t, a, compByTask[t.id] || {}, assistantMap, isAdminish);
+                            return renderTaskCard(t, a, compByTask[t.id] || {}, assistantMap);
                         }).join('')}
                     </div>
                 `;
@@ -1254,7 +1374,8 @@
         }
 
         async function loadLogsTab() {
-            if (!currentUserData || (currentUserData.role !== 'head' && currentUserData.role !== 'deputy_head')) return;
+            const privilegedRoles = ['head', 'deputy_head', 'founder', 'manager'];
+            if (!currentUserData || !privilegedRoles.includes(currentUserData.role)) return;
 
             const feedEl = document.getElementById('logs-feed');
             const overviewEl = document.getElementById('personal-tasks-overview');
@@ -1352,6 +1473,21 @@
                 showAuthView();
             }
         }, 8000);
+
+        // Единый стиль эмодзи на любом устройстве (Twemoji, CC-BY 4.0) — без этого
+        // на Android системные эмодзи выглядят иначе, чем на iOS.
+        let emojiParsePending = false;
+        function refreshEmoji() {
+            if (typeof twemoji === 'undefined') return;
+            twemoji.parse(document.body);
+        }
+        const emojiObserver = new MutationObserver(() => {
+            if (emojiParsePending) return;
+            emojiParsePending = true;
+            requestAnimationFrame(() => { refreshEmoji(); emojiParsePending = false; });
+        });
+        emojiObserver.observe(document.body, { childList: true, subtree: true });
+        refreshEmoji();
 
         checkSession();
     </script>
