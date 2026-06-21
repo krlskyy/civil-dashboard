@@ -768,12 +768,13 @@
 
             const tbody = document.getElementById('leaderboard-data');
             tbody.innerHTML = '';
-            let displayIndex = 1;
 
-            assistants.forEach((user) => {
-                if (user.role !== 'assistant') return;
+            const onlyAssistants = assistants.filter(u => u.role === 'assistant');
+
+            onlyAssistants.forEach((user, index) => {
                 if (currentUserData && currentUserData.id === user.id) return;
-                let medal = displayIndex === 1 ? '🥇' : displayIndex === 2 ? '🥈' : displayIndex === 3 ? '🥉' : `<span style="color:#636366">${displayIndex}</span>`;
+                const rank = index + 1;
+                let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `<span style="color:#636366">${rank}</span>`;
                 tbody.innerHTML += `
                     <tr>
                         <td>${medal}</td>
@@ -782,7 +783,6 @@
                         <td style="text-align: right;"><span class="points-badge">+${user.points || 0} XP</span></td>
                     </tr>
                 `;
-                displayIndex++;
             });
 
             if (tbody.innerHTML === '') {
