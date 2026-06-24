@@ -36,29 +36,48 @@
 
             --border-color: rgba(255, 255, 255, 0.07);
 
-            --primary: #d61a4c;
+            /* [Design System v1] Акцент стал ярче — на почти-чёрном фоне burgundy
+               должен читаться как осознанный сигнал, а не растворяться в тоне фона */
+            --primary: #c81e4d;
 
-            --primary-hover: #f0245c;
+            --primary-hover: #e2386a;
 
             --text-main: #e5e5e7;
 
             --text-muted: #8e8e93;
 
-            --success: #30d158;
+            --success: #2f9e7a;
 
             --info: #5ac8fa;
 
-            --gold: #f0c75e;
+            /* Gold теперь зарезервирован только для трофеев/медалей/достижений —
+               не используется как акцент навигации или ролей, чтобы убрать
+               "праздничность" из повседневного UI */
+            --gold: #d4af6a;
 
-            --gold-soft: rgba(240, 199, 94, 0.12);
+            --gold-soft: rgba(212, 175, 106, 0.12);
 
-            --deputy: #8fb8ff;
+            /* Role tokens — формализация цветовой иерархии должностей,
+               единые по всей экосистеме Civil Management */
+            --role-head: #c81e4d;
 
-            --deputy-soft: rgba(143, 184, 255, 0.12);
+            --role-head-soft: rgba(200, 30, 77, 0.12);
 
-            --viewer: #c79bf0;
+            --deputy: #b5793a;
 
-            --viewer-soft: rgba(199, 155, 240, 0.12);
+            --deputy-soft: rgba(181, 121, 58, 0.12);
+
+            --founder: #6e6cd9;
+
+            --founder-soft: rgba(110, 108, 217, 0.12);
+
+            --viewer: #6e6cd9;
+
+            --viewer-soft: rgba(110, 108, 217, 0.12);
+
+            --manager: #2f9e7a;
+
+            --manager-soft: rgba(47, 158, 122, 0.12);
 
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -106,7 +125,7 @@
 
         .auth-card::before { content:""; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
 
-        .auth-logo { width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), #7a0f31); display:flex; align-items:center; justify-content:center; font-size: 26px; margin: 0 auto 18px; box-shadow: 0 10px 24px rgba(214,26,76,0.35); }
+        .auth-logo { width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), #7a1230); display:flex; align-items:center; justify-content:center; font-size: 26px; margin: 0 auto 18px; box-shadow: 0 10px 24px rgba(200,30,77,0.35); }
 
         .auth-title { text-align: center; font-size: 21px; font-weight: 700; margin-bottom: 6px; }
 
@@ -123,7 +142,7 @@
 
         }
 
-        .card::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, rgba(214,26,76,0.5), transparent); }
+        .card::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, rgba(200,30,77,0.5), transparent); }
 
         .card-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 18px; display:flex; align-items:center; gap:8px; }
         .form-group { margin-bottom: 16px; position: relative; }
@@ -138,7 +157,7 @@
 
         }
 
-        .form-control:focus { outline: none; border-color: rgba(214,26,76,0.5); background: rgba(0,0,0,0.5); }
+        .form-control:focus { outline: none; border-color: rgba(200,30,77,0.5); background: rgba(0,0,0,0.5); }
         .pass-strength { height: 4px; width: 100%; background: rgba(255,255,255,0.05); margin-top: 6px; border-radius: 2px; overflow: hidden; display: none; }
 
         .pass-strength-bar { height: 100%; width: 0%; transition: all 0.3s; background: #ff453a; }
@@ -148,7 +167,7 @@
 
             border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
 
-            box-shadow: 0 4px 12px rgba(214,26,76,0.2); margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(200,30,77,0.2); margin-top: 8px;
 
         }
 
@@ -173,9 +192,9 @@
 
         .nav-link.active { background: rgba(255,255,255,0.07); color: #fff; }
 
-        .nav-link.admin-link { color: var(--gold); }
+        .nav-link.admin-link { color: var(--role-head); }
 
-        .nav-link.admin-link.active { background: var(--gold-soft); color: var(--gold); }
+        .nav-link.admin-link.active { background: var(--role-head-soft); color: var(--role-head); }
 
         .nav-link.admin-link.is-deputy { color: var(--deputy); }
 
@@ -200,7 +219,7 @@
 
         .notif-item { display: flex; gap: 10px; padding: 10px; border-radius: 10px; font-size: 12px; color: #c7c7ca; }
 
-        .notif-item.unread { background: rgba(214,26,76,0.08); color: #fff; }
+        .notif-item.unread { background: rgba(200,30,77,0.08); color: #fff; }
 
         .notif-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
 
@@ -217,11 +236,11 @@
 
         .greeting span#current-user-name { overflow-wrap: break-word; }
 
-        .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border: 1px solid rgba(240,199,94,0.3); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
+        .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--role-head); background: var(--role-head-soft); border: 1px solid rgba(200,30,77,0.3); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
 
-        .head-crown.role-deputy { color: var(--deputy); background: var(--deputy-soft); border-color: rgba(143,184,255,0.3); }
+        .head-crown.role-deputy { color: var(--deputy); background: var(--deputy-soft); border-color: rgba(181,121,58,0.3); }
 
-        .head-crown.role-viewer { color: var(--viewer); background: var(--viewer-soft); border-color: rgba(199,155,240,0.3); }
+        .head-crown.role-viewer { color: var(--viewer); background: var(--viewer-soft); border-color: rgba(110,108,217,0.3); }
         .bottom-nav { display: none; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
 
@@ -487,9 +506,9 @@
 
             .bottom-nav-btn.active { color: var(--primary); }
 
-            .bottom-nav-btn.admin-link { color: var(--gold); }
+            .bottom-nav-btn.admin-link { color: var(--role-head); }
 
-            .bottom-nav-btn.admin-link.active { color: var(--gold); }
+            .bottom-nav-btn.admin-link.active { color: var(--role-head); }
 
             .bottom-nav-btn.admin-link.is-deputy { color: var(--deputy); }
 
@@ -1345,7 +1364,7 @@
                 let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `<span style="color:#636366">${rank}</span>`;
 
                 tbody.innerHTML += `
-                    <tr style="${isMe ? 'background:rgba(214,26,76,0.06);' : ''}">
+                    <tr style="${isMe ? 'background:rgba(200,30,77,0.06);' : ''}">
                         <td>${medal}</td>
                         <td style="font-weight: 600; color: #fff;">${escapeHtml(user.name)}${isMe ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''}</td>
                         <td>${user.tasks_count || 0}</td>
@@ -1561,12 +1580,12 @@
                 data: {
                     datasets: [{
                         data: points,
-                        borderColor: '#d61a4c',
-                        backgroundColor: 'rgba(214,26,76,0.12)',
+                        borderColor: '#c81e4d',
+                        backgroundColor: 'rgba(200,30,77,0.12)',
                         borderWidth: 2,
                         pointRadius: 0,
                         pointHoverRadius: 4,
-                        pointHoverBackgroundColor: '#f0c75e',
+                        pointHoverBackgroundColor: '#d4af6a',
                         fill: true,
                         tension: 0.3
                     }]
