@@ -20,6 +20,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
     <style>
 
         :root {
@@ -279,6 +283,11 @@
         .admin-row-profile { margin-top: 10px; padding: 12px 14px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; overflow-wrap: break-word; }
 
         .admin-row-profile b { color: #e5e5e7; font-weight: 600; }
+        .xp-chart-wrap { margin-top: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 14px 10px 6px; height: 140px; position: relative; }
+        .xp-chart-wrap canvas { max-height: 100%; }
+        .xp-chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: 12px; }
+        .xp-chart-loading { display: flex; align-items: center; justify-content: center; height: 100%; }
+        .xp-chart-loading .skel { width: 90%; height: 70%; border-radius: 8px; }
 
         .role-lock-note { font-size: 12px; color: var(--text-muted); }
         .settings-list { display: flex; flex-direction: column; gap: 16px; }
@@ -645,6 +654,13 @@
                 </div>
                 <div id="workspace-tab" class="tab-content">
 
+                    <div class="card">
+                        <div class="card-title">📈 Динамика XP</div>
+                        <div class="xp-chart-wrap" id="xp-chart-wrap-self" style="height:180px;">
+                            <div class="xp-chart-loading"><div class="skel"></div></div>
+                        </div>
+                    </div>
+
                     <div class="grid-layout">
 
                         <div>
@@ -981,6 +997,8 @@
             else if (tabId === 'admin-tab') loadAdminPanel();
 
             else if (tabId === 'logs-tab') loadLogsTab();
+
+            else if (tabId === 'workspace-tab' && currentUserData) loadXpHistory(currentUserData.id, 'xp-chart-wrap-self');
 
         }
         function toggleAuthMode() {
@@ -1490,12 +1508,88 @@
             return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
 
         }
+        const xpChartLoadedFor = new Set();
+        const xpChartInstances = {};
+
         function toggleProfileCard(userId) {
 
             const card = document.getElementById(`profile-${userId}`);
 
-            card.style.display = card.style.display === 'none' ? 'flex' : 'none';
+            const opening = card.style.display === 'none';
+            card.style.display = opening ? 'flex' : 'none';
 
+            if (opening && !xpChartLoadedFor.has(userId)) {
+                xpChartLoadedFor.add(userId);
+                loadXpHistory(userId);
+            }
+
+        }
+        async function loadXpHistory(userId, wrapId) {
+            const wrap = document.getElementById(wrapId || `xp-chart-wrap-${userId}`);
+            if (!wrap) return;
+
+            const { data, error } = await supabaseClient
+                .from('work_logs')
+                .select('points_awarded, created_at')
+                .eq('assistant_id', userId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                wrap.innerHTML = `<div class="xp-chart-empty">Ошибка загрузки графика</div>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                wrap.innerHTML = `<div class="xp-chart-empty">Пока нет данных для графика</div>`;
+                return;
+            }
+
+            // Накопительная сумма XP по времени — каждая точка = баланс после очередного отчёта
+            let running = 0;
+            const points = data.map(l => {
+                running += (l.points_awarded || 0);
+                return { x: l.created_at, y: running };
+            });
+
+            wrap.innerHTML = `<canvas id="xp-canvas-${userId}"></canvas>`;
+            const ctx = document.getElementById(`xp-canvas-${userId}`).getContext('2d');
+
+            if (xpChartInstances[userId]) xpChartInstances[userId].destroy();
+
+            xpChartInstances[userId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        data: points,
+                        borderColor: '#d61a4c',
+                        backgroundColor: 'rgba(214,26,76,0.12)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: '#f0c75e',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'day', tooltipFormat: 'd MMM' },
+                            grid: { display: false },
+                            ticks: { color: '#8e8e93', font: { size: 10 }, maxTicksLimit: 5 }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            ticks: { color: '#8e8e93', font: { size: 10 } },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         }
         async function loadAdminPanel() {
 
@@ -1590,6 +1684,10 @@
 
                             <span><b>Последний визит:</b> ${formatLastSeen(user.last_seen)}</span>
 
+                            <div class="xp-chart-wrap" id="xp-chart-wrap-${user.id}">
+                                <div class="xp-chart-loading"><div class="skel"></div></div>
+                            </div>
+
                         </div>
 
                     `;
@@ -1632,6 +1730,10 @@
                         <span><b>Отчётов:</b> ${user.tasks_count || 0}</span>
 
                         <span><b>Последний визит:</b> ${formatLastSeen(user.last_seen)}</span>
+
+                        <div class="xp-chart-wrap" id="xp-chart-wrap-${user.id}">
+                            <div class="xp-chart-loading"><div class="skel"></div></div>
+                        </div>
 
                     </div>
 
