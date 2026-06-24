@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Civil Team | Workspace</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C81E4D' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <style>
-        /* ===== Глобальные токены экосистемы Civil ID ===== */
         :root {
             --bg-base: #0A0A0C;
             --bg-surface: #131316;
@@ -23,15 +21,12 @@
             --text-primary: #E8E6E3;
             --text-secondary: #ABA9A6;
             --text-muted: #6E6C72;
-
             --accent: #C81E4D;
             --accent-hover: #E2386A;
             --accent-soft: rgba(200,30,77,0.12);
             --accent-border: rgba(200,30,77,0.35);
-
             --gold: #D4AF6A;
             --gold-soft: rgba(212,175,106,0.12);
-
             --role-head: #C81E4D;
             --role-head-soft: rgba(200,30,77,0.12);
             --role-deputy: #B5793A;
@@ -40,16 +35,13 @@
             --role-founder-soft: rgba(110,108,217,0.12);
             --role-manager: #2F9E7A;
             --role-manager-soft: rgba(47,158,122,0.12);
-
             --font-display: 'Fraunces', serif;
             --font-body: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-
             --radius-sm: 8px;
             --radius-md: 14px;
             --radius-lg: 20px;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
         body {
@@ -60,21 +52,18 @@
             -webkit-font-smoothing: antialiased;
         }
         button, input, select, textarea { font-family: inherit; }
-
         body::before, body::after {
             content: ""; position: fixed; width: 350px; height: 350px; border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(80px);
         }
         body::before { top: -5%; right: -5%; background: radial-gradient(circle, rgba(200,30,77,0.1) 0%, rgba(0,0,0,0) 70%); }
         body::after { bottom: -5%; left: -5%; background: radial-gradient(circle, rgba(110,108,217,0.06) 0%, rgba(0,0,0,0) 70%); }
-
-        h1, h2, h3, .card-title, .brand, .greeting {
-            font-family: var(--font-display);
-            font-weight: 600;
-        }
-
+        h1, h2, h3, .card-title, .brand, .greeting { font-family: var(--font-display); font-weight: 600; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .icon-svg { display: inline-block; vertical-align: -0.15em; flex-shrink: 0; }
+        .icon-svg svg { display: block; }
 
         .screen { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 1; animation: fadeIn 0.3s ease forwards; }
         .screen.active { display: block; }
@@ -93,7 +82,13 @@
             box-shadow: 0 24px 50px rgba(0,0,0,0.5);
         }
         .auth-card::before { content:""; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
-        .auth-logo { width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), #7a1230); display:flex; align-items:center; justify-content:center; font-size: 26px; margin: 0 auto 18px; box-shadow: 0 10px 24px rgba(200,30,77,0.35); }
+        .auth-logo {
+            width: 54px; height: 54px; border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent), #7a1230);
+            display:flex; align-items:center; justify-content:center;
+            margin: 0 auto 18px; color: #fff;
+            box-shadow: 0 10px 24px rgba(200,30,77,0.35);
+        }
         .auth-title { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
         .auth-subtitle { text-align: center; font-size: 13px; color: var(--text-secondary); margin-bottom: 26px; }
 
@@ -104,7 +99,11 @@
             box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.03); margin-bottom: 20px;
         }
         .card::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, var(--accent-border), transparent); }
-        .card-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 18px; display:flex; align-items:center; gap:8px; }
+        .card-title {
+            font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-muted); margin-bottom: 18px; display:flex; align-items:center; gap:10px;
+        }
+        .card-title .icon-svg { color: var(--accent); opacity: 0.9; }
 
         .form-group { margin-bottom: 16px; position: relative; }
         .form-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
@@ -133,6 +132,7 @@
         .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; background: none; border: none; text-align: left; width: 100%; transition: all 0.15s; }
         .nav-link:hover { background: var(--bg-surface-raised); color: var(--text-primary); }
         .nav-link.active { background: var(--bg-surface-raised); color: var(--text-primary); }
+        .nav-link .icon-svg { width: 18px; height: 18px; }
         .nav-link.admin-link { color: var(--role-head); }
         .nav-link.admin-link.active { background: var(--role-head-soft); color: var(--role-head); }
         .nav-link.admin-link.is-deputy { color: var(--role-deputy); }
@@ -146,13 +146,13 @@
         .greeting { font-size: 22px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
         .greeting span#current-user-name { overflow-wrap: break-word; }
 
-        .head-crown { display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--role-head); background: var(--role-head-soft); border: 1px solid rgba(200,30,77,0.3); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
+        .head-crown { display: none; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--role-head); background: var(--role-head-soft); border: 1px solid rgba(200,30,77,0.3); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
         .head-crown.role-deputy { color: var(--role-deputy); background: var(--role-deputy-soft); border-color: rgba(181,121,58,0.3); }
         .head-crown.role-viewer { color: var(--role-founder); background: var(--role-founder-soft); border-color: rgba(110,108,217,0.3); }
 
         .mobile-topbar { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border-soft); position: sticky; top: 0; background: rgba(10,10,12,0.88); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 30; }
 
-        .notif-bell { position: relative; background: rgba(255,255,255,0.04); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 11px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+        .notif-bell { position: relative; background: rgba(255,255,255,0.04); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; color: var(--text-primary); }
         .notif-bell:hover { background: rgba(255,255,255,0.08); }
         .notif-badge { position: absolute; top: -4px; right: -4px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
         .notif-dropdown { position: fixed; display: none; max-height: 380px; overflow-y: auto; width: 300px; max-width: 88vw; background: rgba(18,18,20,0.98); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border: 1px solid var(--border); border-radius: 16px; padding: 8px; z-index: 200; box-shadow: 0 24px 50px rgba(0,0,0,0.6); }
@@ -160,10 +160,10 @@
         .notif-dropdown-title { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 10px 10px 12px; }
         .notif-item { display: flex; gap: 10px; padding: 10px; border-radius: 10px; font-size: 12px; color: #c7c7ca; }
         .notif-item.unread { background: rgba(200,30,77,0.08); color: #fff; }
-        .notif-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+        .notif-icon { flex-shrink: 0; line-height: 1.3; color: var(--gold); display:flex; align-items:center; }
         .notif-text { line-height: 1.4; overflow-wrap: break-word; }
         .notif-item-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-        .notif-empty { text-align: center; color: var(--text-muted); padding: 26px 10px; font-size: 12px; }
+        .notif-empty { text-align: center; color: var(--text-muted); padding: 26px 10px; font-size: 12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
         .stat-box { background: var(--bg-surface); border: 1px solid var(--border); padding: 18px; border-radius: var(--radius-md); transition: border-color 0.2s, transform 0.2s; min-width: 0; }
@@ -183,7 +183,14 @@
         .leaderboard-table td { padding: 12px 0; font-size: 14px; border-bottom: 1px solid var(--border-soft); text-align: left; }
         .points-badge { background: rgba(47,158,122,0.1); border: 1px solid rgba(47,158,122,0.2); padding: 3px 8px; border-radius: 6px; font-weight: 600; color: var(--role-manager); font-size: 12px; white-space: nowrap; }
 
-        /* Остальные стили из исходного dashboard сохранены и адаптированы под Civil ID */
+        .medal {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700;
+        }
+        .medal-gold { background: rgba(212,175,106,0.18); color: var(--gold); border: 1px solid rgba(212,175,106,0.4); }
+        .medal-silver { background: rgba(192,192,192,0.14); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.35); }
+        .medal-bronze { background: rgba(205,127,50,0.14); color: #cd7f32; border: 1px solid rgba(205,127,50,0.35); }
+
         .pass-strength { height: 4px; width: 100%; background: rgba(255,255,255,0.05); margin-top: 6px; border-radius: 2px; overflow: hidden; display: none; }
         .pass-strength-bar { height: 100%; width: 0%; transition: all 0.3s; background: #ff453a; }
         .btn-danger { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
@@ -195,18 +202,22 @@
         .task-card.status-done { border-left-color: var(--role-manager); opacity: 0.7; }
         .task-card.status-done .task-title { text-decoration: line-through; }
         .task-status-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-        .status-pill, .status-select { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid; background: transparent; }
+        .status-pill, .status-select { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid; background: transparent; display:inline-flex; align-items:center; gap:6px; }
         .status-select { cursor: pointer; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display:inline-block; }
         .status-todo { color: var(--text-muted); border-color: rgba(174,174,178,0.3); background: rgba(174,174,178,0.08); }
+        .status-todo .status-dot { background: var(--text-muted); }
         .status-in_progress { color: #5ac8fa; border-color: rgba(90,200,250,0.3); background: rgba(90,200,250,0.1); }
+        .status-in_progress .status-dot { background: #5ac8fa; }
         .status-done { color: var(--role-manager); border-color: rgba(47,158,122,0.3); background: rgba(47,158,122,0.1); }
-        .task-due { font-size: 11px; color: var(--text-muted); }
+        .status-done .status-dot { background: var(--role-manager); }
+        .task-due { font-size: 11px; color: var(--text-muted); display:inline-flex; align-items:center; gap:5px; }
         .task-due.overdue { color: #ff453a; font-weight: 600; }
         .task-title { font-weight: 600; font-size: 15px; color: var(--text-primary); margin-bottom: 4px; overflow-wrap: break-word; }
         .task-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; white-space: pre-wrap; overflow-wrap: break-word; }
         .task-assignee-note { font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 6px; }
         .task-avatars { display: flex; }
-        .task-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; border: 2px solid var(--bg-main); margin-left: -6px; flex-shrink: 0; }
+        .task-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; border: 2px solid var(--bg-surface); margin-left: -6px; flex-shrink: 0; }
         .task-avatar:first-child { margin-left: 0; }
         .task-avatar.todo { box-shadow: 0 0 0 1.5px #3a3a3c; opacity: 0.55; }
         .task-avatar.pending { box-shadow: 0 0 0 1.5px #ff9f0a; }
@@ -217,12 +228,12 @@
         .task-progress-frac { font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
         .task-progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 6px; overflow: hidden; }
         .task-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); transition: width 0.3s; }
-        .task-mark-btn { margin-top: 10px; background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.3); color: var(--role-manager); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .task-mark-btn { margin-top: 10px; background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.3); color: var(--role-manager); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display:inline-flex; align-items:center; gap:6px; }
         .task-mark-btn:hover { background: rgba(48,209,88,0.2); }
         .task-pending-note, .task-confirmed-note { margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .task-cancel-btn { background: none; border: none; color: #ff453a; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; }
         .task-footer { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04); flex-wrap: wrap; }
-        .comments-toggle-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0; }
+        .comments-toggle-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0; display:inline-flex; align-items:center; gap:5px; }
         .comments-toggle-btn:hover { color: #fff; }
         .task-comments { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04); animation: fadeIn 0.2s ease; }
         .comments-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
@@ -235,16 +246,16 @@
         .comment-input-row { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         .comment-input-row .comment-input { flex: 1; min-width: 0; background: none; border: none; color: #fff; font-size: 13px; padding: 4px 0; }
         .comment-input-row .comment-input:focus { outline: none; }
-        .comment-send-btn { background: none; border: none; color: var(--accent); font-size: 17px; cursor: pointer; padding: 4px; flex-shrink: 0; }
+        .comment-send-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px; flex-shrink: 0; display:flex; align-items:center; }
         .log-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 10px; }
         .log-row > div:first-child { flex: 1 1 auto; min-width: 0; }
         .log-row .points-badge { flex-shrink: 0; }
         .log-row-title { font-size: 13px; font-weight: 600; color: #fff; overflow-wrap: break-word; word-break: break-word; }
-        .log-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; overflow-wrap: break-word; word-break: break-word; }
-        .log-row-meta a { word-break: break-all; color: var(--role-deputy); }
+        .log-row-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; overflow-wrap: break-word; word-break: break-word; display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+        .log-row-meta a { word-break: break-all; color: var(--role-deputy); display:inline-flex; align-items:center; gap:3px; }
         .log-assistant-block { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .log-assistant-block:last-child { border-bottom: none; margin-bottom: 0; }
-        .log-task-item { font-size: 12px; color: #d1d1d3; padding: 4px 0 4px 4px; overflow-wrap: break-word; }
+        .log-task-item { font-size: 12px; color: #d1d1d3; padding: 4px 0 4px 4px; overflow-wrap: break-word; display:flex; align-items:center; gap:6px; }
         .admin-list { display: flex; flex-direction: column; gap: 16px; }
         .admin-row { padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .admin-row:last-child { border-bottom: none; padding-bottom: 0; }
@@ -253,7 +264,7 @@
         .role-select, .points-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
         .role-select { flex: 1 1 120px; min-width: 0; }
         .points-input { flex: 0 1 90px; min-width: 0; }
-        .save-row-btn, .delete-row-btn, .view-row-btn { flex: 0 0 auto; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; }
+        .save-row-btn, .delete-row-btn, .view-row-btn { flex: 0 0 auto; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; display:inline-flex; align-items:center; gap:5px; }
         .save-row-btn { background: rgba(48,209,88,0.12); border-color: rgba(48,209,88,0.3); color: var(--role-manager); }
         .save-row-btn:hover { background: rgba(48,209,88,0.2); }
         .delete-row-btn { background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.3); color: #ff453a; }
@@ -270,12 +281,12 @@
         .role-lock-note { font-size: 12px; color: var(--text-muted); }
         .settings-list { display: flex; flex-direction: column; gap: 16px; }
         .settings-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 10px; flex-wrap: wrap; }
-        .settings-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .settings-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 6px; display:flex; align-items:center; gap:7px; }
         .settings-info p { font-size: 12px; color: var(--text-muted); }
         .task-editor { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px; margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
         .task-editor-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .task-editor-row > * { flex: 1 1 160px; min-width: 0; }
-        .tasks-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; margin: 22px 0 12px; }
+        .tasks-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; margin: 22px 0 12px; display:flex; align-items:center; gap:8px; }
         .tasks-section-title:first-child { margin-top: 0; }
         .tasks-done-toggle { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 600; margin: 22px 0 12px; cursor: pointer; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); user-select: none; }
         .tasks-done-toggle:hover { color: #fff; }
@@ -299,10 +310,11 @@
         .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
         .page-indicator { font-size: 12px; color: var(--text-muted); min-width: 70px; text-align: center; }
         .empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 16px; color: var(--text-muted); }
-        .empty-state .empty-icon { font-size: 34px; margin-bottom: 12px; opacity: 0.7; }
+        .empty-state .empty-icon { margin-bottom: 12px; opacity: 0.7; color: var(--text-muted); }
         .empty-state .empty-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
         .empty-state .empty-desc { font-size: 13px; margin-bottom: 16px; max-width: 280px; }
         .empty-state .btn-primary { width: auto; padding: 9px 18px; margin-top: 0; }
+
         #toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: rgba(20,20,22,0.95); border: 1px solid var(--border); backdrop-filter: blur(12px);
@@ -310,7 +322,8 @@
             transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275); z-index: 9999; opacity: 0; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        img.emoji { height: 1.15em; width: 1.15em; vertical-align: -0.2em; margin: 0 0.02em 0 0.05em; }
+
+        .bottom-nav { display: none; }
 
         @media (max-width: 860px) {
             .sidebar { display: none; }
@@ -323,8 +336,8 @@
                 border-top: 1px solid var(--border-soft); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
                 z-index: 40; justify-content: space-around;
             }
-            .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; color: var(--text-muted); font-size: 10px; padding: 6px 4px; border-radius: 10px; flex: 1; min-width: 0; }
-            .bottom-nav-btn .icon { font-size: 19px; }
+            .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; color: var(--text-muted); font-size: 10px; padding: 6px 4px; border-radius: 10px; flex: 1; min-width: 0; cursor: pointer; }
+            .bottom-nav-btn .icon { font-size: 19px; display:flex; align-items:center; justify-content:center; }
             .bottom-nav-btn.active { color: var(--accent); }
         }
     </style>
@@ -336,7 +349,7 @@
     </div>
     <div id="auth-view" class="screen">
         <div class="auth-card">
-            <div class="auth-logo">🛡️</div>
+            <div class="auth-logo" id="auth-logo-icon"></div>
             <h2 class="auth-title" id="auth-title">Вход в Workspace</h2>
             <p class="auth-subtitle" id="auth-subtitle">Войди под своим игровым ником</p>
             <form id="auth-form">
@@ -360,7 +373,7 @@
     </div>
     <div id="pending-view" class="screen">
         <div class="auth-card" style="text-align: center;">
-            <div class="auth-logo">⏳</div>
+            <div class="auth-logo" id="pending-logo-icon" style="background: linear-gradient(135deg, #B5793A, #6b4620); box-shadow: 0 10px 24px rgba(181,121,58,0.35);"></div>
             <h2 class="auth-title">Заявка на рассмотрении</h2>
             <p class="auth-subtitle">Доступ к команде Civil выдаёт руководство вручную. Заявка отправлена — дождись подтверждения, потом просто зайди ещё раз.</p>
             <button class="btn-primary" style="background: rgba(255,255,255,0.06); box-shadow: none;" onclick="checkSession()">Проверить ещё раз</button>
@@ -369,30 +382,28 @@
     </div>
     <div id="dashboard-view" class="screen">
         <div class="mobile-topbar">
-            <div class="brand">🛡️ Civil Team</div>
-            <button class="notif-bell" onclick="toggleNotifications(this)">🔔<span class="notif-badge">0</span></button>
+            <div class="brand" id="mobile-brand"></div>
+            <button class="notif-bell" onclick="toggleNotifications(this)" id="mobile-notif-bell">
+                <span class="notif-badge">0</span>
+            </button>
         </div>
         <div class="app-shell">
             <aside class="sidebar">
                 <div class="sidebar-top">
-                    <div class="brand">🛡️ Civil Team</div>
-                    <button class="notif-bell" onclick="toggleNotifications(this)">🔔<span class="notif-badge">0</span></button>
+                    <div class="brand" id="sidebar-brand"></div>
+                    <button class="notif-bell" onclick="toggleNotifications(this)" id="sidebar-notif-bell">
+                        <span class="notif-badge">0</span>
+                    </button>
                 </div>
-                <nav class="sidebar-nav">
-                    <button class="nav-link" data-tab="workspace-tab" onclick="switchTab('workspace-tab')">📊 Панель</button>
-                    <button class="nav-link" data-tab="tasks-tab" onclick="switchTab('tasks-tab')">✅ Задачи</button>
-                    <button class="nav-link admin-link" data-tab="admin-tab" style="display:none;" onclick="switchTab('admin-tab')">👑 Admin</button>
-                    <button class="nav-link admin-link" data-tab="logs-tab" style="display:none;" onclick="switchTab('logs-tab')">🧾 Логи</button>
-                    <button class="nav-link" data-tab="settings-tab" onclick="switchTab('settings-tab')">⚙️ Ещё</button>
-                </nav>
+                <nav class="sidebar-nav" id="sidebar-nav"></nav>
                 <div class="sidebar-footer">
-                    <button class="nav-link" onclick="logOut()">🚪 Выйти</button>
+                    <button class="nav-link" onclick="logOut()" id="logout-link"></button>
                 </div>
             </aside>
             <main class="main-content">
                 <div class="content-header">
                     <div class="greeting">
-                        👋 <span id="current-user-name">Загрузка...</span>
+                        <span id="current-user-name">Загрузка...</span>
                         <span id="head-crown-badge" class="head-crown"></span>
                     </div>
                 </div>
@@ -412,7 +423,7 @@
                 </div>
                 <div id="workspace-tab" class="tab-content">
                     <div class="card">
-                        <div class="card-title">📈 Динамика XP</div>
+                        <div class="card-title" id="ct-xp-history"></div>
                         <div class="xp-chart-wrap" id="xp-chart-wrap-self" style="height:180px;">
                             <div class="xp-chart-loading"><div class="skel"></div></div>
                         </div>
@@ -420,7 +431,7 @@
                     <div class="grid-layout">
                         <div>
                             <div class="card">
-                                <div class="card-title">📝 Зарегистрировать отчет</div>
+                                <div class="card-title" id="ct-register-log"></div>
                                 <form id="work-form">
                                     <div class="form-group">
                                         <label>Выбери тип выполненной задачи</label>
@@ -441,7 +452,7 @@
                         </div>
                         <div>
                             <div class="card">
-                                <div class="card-title">🏆 Мониторинг Ассистентов</div>
+                                <div class="card-title" id="ct-monitoring"></div>
                                 <table class="leaderboard-table">
                                     <thead>
                                         <tr>
@@ -461,16 +472,16 @@
                 </div>
                 <div id="tasks-tab" class="tab-content">
                     <div class="card">
-                        <div class="card-title">✅ Задачи</div>
+                        <div class="card-title" id="ct-tasks"></div>
                         <div id="task-editor-toggle-wrap" style="display:none; margin-bottom: 18px;">
-                            <button class="btn-primary" style="width:auto; padding:10px 18px; margin-top:0;" onclick="toggleTaskEditor()">+ Новая задача</button>
+                            <button class="btn-primary" style="width:auto; padding:10px 18px; margin-top:0; display:inline-flex; align-items:center; gap:6px;" onclick="toggleTaskEditor()" id="new-task-btn"></button>
                             <div class="task-editor" id="task-editor" style="display:none;">
                                 <input type="text" class="form-control" id="task-title-input" placeholder="Название задачи" maxlength="200">
                                 <textarea class="form-control" id="task-desc-input" placeholder="Описание (необязательно)" rows="3" style="resize:vertical;"></textarea>
                                 <div class="task-editor-row">
                                     <input type="date" class="form-control" id="task-due-input">
                                     <select class="form-control" id="task-assignee-select">
-                                        <option value="">🌍 Общая задача — видна всем</option>
+                                        <option value="">Общая задача — видна всем</option>
                                     </select>
                                 </div>
                                 <button class="btn-primary" style="margin-top:0;" onclick="createTask()">Создать задачу</button>
@@ -483,11 +494,11 @@
                 </div>
                 <div id="settings-tab" class="tab-content">
                     <div class="card" style="max-width: 600px;">
-                        <div class="card-title">⚙️ Конфигурация профиля</div>
+                        <div class="card-title" id="ct-settings"></div>
                         <div class="settings-list">
                             <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 12px;">
                                 <div class="settings-info">
-                                    <h4>Смена пароля</h4>
+                                    <h4 id="settings-password-title"></h4>
                                     <p>Минимум 8 символов, нужны буквы и цифры.</p>
                                 </div>
                                 <form id="password-form" style="display: flex; flex-direction: column; gap: 10px;">
@@ -497,28 +508,28 @@
                             </div>
                             <div class="settings-item">
                                 <div class="settings-info">
-                                    <h4>Обновить данные профиля</h4>
+                                    <h4 id="settings-refresh-title"></h4>
                                     <p>Подтянуть актуальные баллы, роль и статистику без перезахода.</p>
                                 </div>
                                 <button class="btn-primary" style="width: auto; padding: 10px 16px; margin-top: 0;" onclick="checkSession()">Обновить</button>
                             </div>
                             <div class="settings-item">
                                 <div class="settings-info">
-                                    <h4>Безопасность сессии</h4>
+                                    <h4 id="settings-security-title"></h4>
                                     <p>Шифрование данных по протоколу JWT через инфраструктуру Supabase.</p>
                                 </div>
                             </div>
-                            <button class="btn-primary" style="background: rgba(255,69,58,0.1); color: #ff453a; box-shadow: none; margin-top: 20px;" onclick="logOut()">Выйти из аккаунта</button>
+                            <button class="btn-primary" style="background: rgba(255,69,58,0.1); color: #ff453a; box-shadow: none; margin-top: 20px; display:flex; align-items:center; justify-content:center; gap:7px;" onclick="logOut()" id="settings-logout-btn"></button>
                         </div>
                     </div>
                 </div>
                 <div id="admin-tab" class="tab-content">
                     <div class="card" id="pending-approvals-card" style="display:none;">
-                        <div class="card-title">🆕 Заявки на доступ</div>
+                        <div class="card-title" id="ct-pending-approvals"></div>
                         <div id="pending-approvals-list" class="admin-list"></div>
                     </div>
                     <div class="card">
-                        <div class="card-title">👑 Управление ассистентами</div>
+                        <div class="card-title" id="ct-admin-manage"></div>
                         <div id="admin-data" class="admin-list">
                             <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
                         </div>
@@ -526,13 +537,13 @@
                 </div>
                 <div id="logs-tab" class="tab-content">
                     <div class="card">
-                        <div class="card-title">🧾 Последние отчёты</div>
+                        <div class="card-title" id="ct-logs-feed"></div>
                         <div id="logs-feed">
                             <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-title">📋 Личные задачи по ассистентам</div>
+                        <div class="card-title" id="ct-personal-tasks"></div>
                         <div id="personal-tasks-overview">
                             <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">Загрузка...</p>
                         </div>
@@ -540,13 +551,7 @@
                 </div>
             </main>
         </div>
-        <nav class="bottom-nav">
-            <button class="bottom-nav-btn" data-tab="workspace-tab" onclick="switchTab('workspace-tab')"><span class="icon">📊</span>Панель</button>
-            <button class="bottom-nav-btn" data-tab="tasks-tab" onclick="switchTab('tasks-tab')"><span class="icon">✅</span>Задачи</button>
-            <button class="bottom-nav-btn admin-link" data-tab="admin-tab" style="display:none;" onclick="switchTab('admin-tab')"><span class="icon">👑</span>Admin</button>
-            <button class="bottom-nav-btn admin-link" data-tab="logs-tab" style="display:none;" onclick="switchTab('logs-tab')"><span class="icon">🧾</span>Логи</button>
-            <button class="bottom-nav-btn" data-tab="settings-tab" onclick="switchTab('settings-tab')"><span class="icon">⚙️</span>Ещё</button>
-        </nav>
+        <nav class="bottom-nav" id="bottom-nav"></nav>
     </div>
     <div class="notif-dropdown" id="notif-dropdown">
         <div class="notif-dropdown-title">Уведомления</div>
@@ -554,13 +559,102 @@
     </div>
 
     <script>
+        /* ========== SVG Icon System ========== */
+        const svgWrap = (s, inner) => `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+        const ICONS = {
+            shield: (s=24) => svgWrap(s, `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`),
+            bell: (s=20) => svgWrap(s, `<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>`),
+            dashboard: (s=18) => svgWrap(s, `<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>`),
+            listChecks: (s=18) => svgWrap(s, `<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>`),
+            crown: (s=18) => svgWrap(s, `<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>`),
+            scrollText: (s=18) => svgWrap(s, `<path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M15 8h-5"/><path d="M15 12h-5"/>`),
+            settings: (s=18) => svgWrap(s, `<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>`),
+            logOut: (s=18) => svgWrap(s, `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>`),
+            trendingUp: (s=18) => svgWrap(s, `<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>`),
+            clipboardPlus: (s=18) => svgWrap(s, `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 14h6"/><path d="M12 11v6"/>`),
+            trophy: (s=18) => svgWrap(s, `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>`),
+            hourglass: (s=24) => svgWrap(s, `<path d="M6 22h12"/><path d="M6 2h12"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>`),
+            plus: (s=16) => svgWrap(s, `<path d="M5 12h14"/><path d="M12 5v14"/>`),
+            globe: (s=16) => svgWrap(s, `<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>`),
+            user: (s=16) => svgWrap(s, `<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`),
+            coins: (s=16) => svgWrap(s, `<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>`),
+            clipboardList: (s=16) => svgWrap(s, `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>`),
+            eye: (s=14) => svgWrap(s, `<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>`),
+            messageCircle: (s=14) => svgWrap(s, `<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>`),
+            send: (s=16) => svgWrap(s, `<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>`),
+            flame: (s=12) => svgWrap(s, `<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>`),
+            calendar: (s=12) => svgWrap(s, `<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>`),
+            check: (s=14) => svgWrap(s, `<polyline points="20 6 9 17 4 12"/>`),
+            checkCircle: (s=14) => svgWrap(s, `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`),
+            x: (s=14) => svgWrap(s, `<path d="M18 6 6 18"/><path d="m6 6 12 12"/>`),
+            trash2: (s=14) => svgWrap(s, `<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`),
+            save: (s=14) => svgWrap(s, `<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>`),
+            keyRound: (s=16) => svgWrap(s, `<path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>`),
+            refreshCw: (s=16) => svgWrap(s, `<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`),
+            shieldCheck: (s=16) => svgWrap(s, `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>`),
+            leaf: (s=20) => svgWrap(s, `<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96c.5 3.5-.4 6.5-3.4 9.4-3 3-6 4-9 4Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>`),
+            chevronRight: (s=12) => svgWrap(s, `<polyline points="9 18 15 12 9 6"/>`),
+            chevronDown: (s=12) => svgWrap(s, `<polyline points="6 9 12 15 18 9"/>`),
+            clock: (s=12) => svgWrap(s, `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`),
+            link: (s=10) => svgWrap(s, `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`),
+            sparkles: (s=36) => svgWrap(s, `<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>`),
+            inbox: (s=36) => svgWrap(s, `<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>`),
+            fileText: (s=36) => svgWrap(s, `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/>`),
+            listTodo: (s=36) => svgWrap(s, `<rect x="3" y="5" width="6" height="6" rx="1"/><path d="m3 17 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>`)
+        };
+        const icon = (name, s=16) => `<span class="icon-svg" style="width:${s}px; height:${s}px;">${ICONS[name](s)}</span>`;
+
+        /* ========== Inject static icons into DOM ========== */
+        document.getElementById('auth-logo-icon').innerHTML = ICONS.shield(28);
+        document.getElementById('pending-logo-icon').innerHTML = ICONS.hourglass(26);
+        document.getElementById('mobile-brand').innerHTML = `${icon('shield', 20)}<span>Civil Team</span>`;
+        document.getElementById('sidebar-brand').innerHTML = `${icon('shield', 20)}<span>Civil Team</span>`;
+        document.getElementById('mobile-notif-bell').insertAdjacentHTML('afterbegin', ICONS.bell(18));
+        document.getElementById('sidebar-notif-bell').insertAdjacentHTML('afterbegin', ICONS.bell(18));
+
+        document.getElementById('sidebar-nav').innerHTML = `
+            <button class="nav-link" data-tab="workspace-tab" onclick="switchTab('workspace-tab')">${icon('dashboard', 18)}<span>Панель</span></button>
+            <button class="nav-link" data-tab="tasks-tab" onclick="switchTab('tasks-tab')">${icon('listChecks', 18)}<span>Задачи</span></button>
+            <button class="nav-link admin-link" data-tab="admin-tab" style="display:none;" onclick="switchTab('admin-tab')">${icon('crown', 18)}<span>Admin</span></button>
+            <button class="nav-link admin-link" data-tab="logs-tab" style="display:none;" onclick="switchTab('logs-tab')">${icon('scrollText', 18)}<span>Логи</span></button>
+            <button class="nav-link" data-tab="settings-tab" onclick="switchTab('settings-tab')">${icon('settings', 18)}<span>Ещё</span></button>
+        `;
+        document.getElementById('logout-link').innerHTML = `${icon('logOut', 18)}<span>Выйти</span>`;
+
+        document.getElementById('ct-xp-history').innerHTML = `${icon('trendingUp', 18)}<span>Динамика XP</span>`;
+        document.getElementById('ct-register-log').innerHTML = `${icon('clipboardPlus', 18)}<span>Зарегистрировать отчет</span>`;
+        document.getElementById('ct-monitoring').innerHTML = `${icon('trophy', 18)}<span>Мониторинг Ассистентов</span>`;
+        document.getElementById('ct-tasks').innerHTML = `${icon('listChecks', 18)}<span>Задачи</span>`;
+        document.getElementById('new-task-btn').innerHTML = `${icon('plus', 16)}<span>Новая задача</span>`;
+        document.getElementById('ct-settings').innerHTML = `${icon('settings', 18)}<span>Конфигурация профиля</span>`;
+        document.getElementById('settings-password-title').innerHTML = `${icon('keyRound', 16)}<span>Смена пароля</span>`;
+        document.getElementById('settings-refresh-title').innerHTML = `${icon('refreshCw', 16)}<span>Обновить данные профиля</span>`;
+        document.getElementById('settings-security-title').innerHTML = `${icon('shieldCheck', 16)}<span>Безопасность сессии</span>`;
+        document.getElementById('settings-logout-btn').innerHTML = `${icon('logOut', 16)}<span>Выйти из аккаунта</span>`;
+        document.getElementById('ct-pending-approvals').innerHTML = `${icon('user', 18)}<span>Заявки на доступ</span>`;
+        document.getElementById('ct-admin-manage').innerHTML = `${icon('crown', 18)}<span>Управление ассистентами</span>`;
+        document.getElementById('ct-logs-feed').innerHTML = `${icon('scrollText', 18)}<span>Последние отчёты</span>`;
+        document.getElementById('ct-personal-tasks').innerHTML = `${icon('clipboardList', 18)}<span>Личные задачи по ассистентам</span>`;
+
+        document.getElementById('bottom-nav').innerHTML = `
+            <button class="bottom-nav-btn" data-tab="workspace-tab" onclick="switchTab('workspace-tab')"><span class="icon">${icon('dashboard', 20)}</span>Панель</button>
+            <button class="bottom-nav-btn" data-tab="tasks-tab" onclick="switchTab('tasks-tab')"><span class="icon">${icon('listChecks', 20)}</span>Задачи</button>
+            <button class="bottom-nav-btn admin-link" data-tab="admin-tab" style="display:none;" onclick="switchTab('admin-tab')"><span class="icon">${icon('crown', 20)}</span>Admin</button>
+            <button class="bottom-nav-btn admin-link" data-tab="logs-tab" style="display:none;" onclick="switchTab('logs-tab')"><span class="icon">${icon('scrollText', 20)}</span>Логи</button>
+            <button class="bottom-nav-btn" data-tab="settings-tab" onclick="switchTab('settings-tab')"><span class="icon">${icon('settings', 20)}</span>Ещё</button>
+        `;
+
+        /* ========== Supabase Client ========== */
         const SUPABASE_URL = "https://jdrepnjvvyzaiohihvvw.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcmVwbmp2dnl6YWlvaGlodnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDczODUsImV4cCI6MjA5NzI4MzM4NX0.Byex7T_qRiiVBmFMD3QeS8tALx5k1ZIV34O2QDrjjbI";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let isRegisterMode = false;
         let currentUserData = null;
         let notifPollStarted = false;
         let notifDropdownOpen = false;
+        // FIX: global assistant map for safe onclick handlers (avoid escapeHtml+quote collisions)
+        window._assistantMap = {};
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
@@ -574,6 +668,11 @@
             const div = document.createElement('div');
             div.textContent = str || '';
             return div.innerHTML;
+        }
+
+        // FIX: robust string escaper for inline onclick JS string literals
+        function escapeJsString(s) {
+            return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
         }
 
         function avatarColor(name) {
@@ -682,7 +781,10 @@
                 crownBadge.style.display = isPrivileged ? 'inline-flex' : 'none';
                 crownBadge.classList.toggle('role-deputy', isDeputy);
                 crownBadge.classList.toggle('role-viewer', isViewerRole);
-                crownBadge.innerText = isHead ? '👑 Head' : isDeputy ? '🛡️ Deputy' : isFounder ? '🏛️ Founder' : isManager ? '🧭 Manager' : '';
+                // FIX: no emojis in headings/badges — use SVG + text
+                const crownIconName = isHead ? 'crown' : isDeputy ? 'shield' : isFounder ? 'shieldCheck' : 'user';
+                const crownLabel = isHead ? 'Head' : isDeputy ? 'Deputy' : isFounder ? 'Founder' : isManager ? 'Manager' : '';
+                crownBadge.innerHTML = isPrivileged ? `${icon(crownIconName, 12)}<span>${crownLabel}</span>` : '';
                 const roleStatBox = document.getElementById('role-stat-box');
                 roleStatBox.classList.toggle('gold', isHead);
                 roleStatBox.classList.toggle('silver', isDeputy);
@@ -710,6 +812,12 @@
             const rawName = document.getElementById('auth-name').value.trim();
             const password = document.getElementById('auth-pass').value;
             const safeName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+            // FIX: prevent empty email local-part
+            if (!safeName) {
+                btn.disabled = false;
+                btn.innerText = isRegisterMode ? 'Зарегистрироваться' : 'Войти';
+                return showToast('Никнейм должен содержать хотя бы одну латинскую букву или цифру', true);
+            }
             const systemEmail = `${safeName}@civil.team`;
             try {
                 if (isRegisterMode) {
@@ -802,7 +910,11 @@
             (assistants || []).forEach((user, i) => {
                 const rank = from + i + 1;
                 const isMe = currentUserData && currentUserData.id === user.id;
-                let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `<span style="color:#636366">${rank}</span>`;
+                let medal;
+                if (rank === 1) medal = `<span class="medal medal-gold">1</span>`;
+                else if (rank === 2) medal = `<span class="medal medal-silver">2</span>`;
+                else if (rank === 3) medal = `<span class="medal medal-bronze">3</span>`;
+                else medal = `<span style="color:#636366">${rank}</span>`;
                 tbody.innerHTML += `
                     <tr style="${isMe ? 'background:rgba(200,30,77,0.06);' : ''}">
                         <td>${medal}</td>
@@ -813,7 +925,7 @@
                 `;
             });
             if (!assistants || assistants.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">Пока пусто</div><div class="empty-desc">Как только ассистенты начнут вносить отчёты, здесь появится рейтинг.</div></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">${ICONS.trophy(40)}</div><div class="empty-title">Пока пусто</div><div class="empty-desc">Как только ассистенты начнут вносить отчёты, здесь появится рейтинг.</div></div></td></tr>`;
             }
             renderLeaderboardPagination(count || 0, page);
         }
@@ -848,18 +960,21 @@
             });
             const listEl = document.getElementById('notif-list');
             if (!data || data.length === 0) {
-                listEl.innerHTML = `<p class="notif-empty">Пока ничего нового 🌿</p>`;
+                listEl.innerHTML = `<div class="notif-empty">${ICONS.leaf(24)}<span>Пока ничего нового</span></div>`;
                 return;
             }
-            listEl.innerHTML = data.map(n => `
-                <div class="notif-item ${n.read ? '' : 'unread'}">
-                    <span class="notif-icon">${n.message.includes('XP') ? '💰' : '📋'}</span>
-                    <div>
-                        <div class="notif-text">${escapeHtml(n.message)}</div>
-                        <div class="notif-item-time">${timeAgo(n.created_at)}</div>
+            listEl.innerHTML = data.map(n => {
+                const iconSvg = n.message.includes('XP') ? ICONS.coins(16) : ICONS.clipboardList(16);
+                return `
+                    <div class="notif-item ${n.read ? '' : 'unread'}">
+                        <span class="notif-icon">${iconSvg}</span>
+                        <div>
+                            <div class="notif-text">${escapeHtml(n.message)}</div>
+                            <div class="notif-item-time">${timeAgo(n.created_at)}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function toggleNotifications(btnEl) {
@@ -912,6 +1027,7 @@
 
         function toggleProfileCard(userId) {
             const card = document.getElementById(`profile-${userId}`);
+            if (!card) return;
             const opening = card.style.display === 'none';
             card.style.display = opening ? 'flex' : 'none';
             if (opening && !xpChartLoadedFor.has(userId)) {
@@ -941,10 +1057,12 @@
                 running += (l.points_awarded || 0);
                 return { x: l.created_at, y: running };
             });
-            wrap.innerHTML = `<canvas id="xp-canvas-${userId}"></canvas>`;
-            const ctx = document.getElementById(`xp-canvas-${userId}`).getContext('2d');
-            if (xpChartInstances[userId]) xpChartInstances[userId].destroy();
-            xpChartInstances[userId] = new Chart(ctx, {
+            const canvasId = `xp-canvas-${userId}-${wrapId || 'profile'}`;
+            wrap.innerHTML = `<canvas id="${canvasId}"></canvas>`;
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const key = wrapId || userId;
+            if (xpChartInstances[key]) xpChartInstances[key].destroy();
+            xpChartInstances[key] = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [{
@@ -1011,8 +1129,8 @@
                         <div class="admin-row">
                             <div class="admin-row-name">${escapeHtml(u.name)} <span style="color:var(--text-muted); font-weight:400; font-size:12px;">— ${escapeHtml(u.email || '')}</span></div>
                             <div class="admin-row-controls">
-                                <button class="save-row-btn" onclick="adminApproveUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">✅ Одобрить</button>
-                                <button class="delete-row-btn" onclick="adminRejectUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">❌ Отклонить</button>
+                                <button class="save-row-btn" onclick="adminApproveUser('${u.id}')">${icon('check', 14)}<span>Одобрить</span></button>
+                                <button class="delete-row-btn" onclick="adminRejectUser('${u.id}')">${icon('x', 14)}<span>Отклонить</span></button>
                             </div>
                         </div>
                     `).join('');
@@ -1024,8 +1142,10 @@
                 container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px 0;">Список пуст</p>`;
                 return;
             }
+            // Populate global map for safe onclick usage
+            approved.forEach(u => { window._assistantMap[u.id] = u; });
             const isCurrentHead = role === 'head';
-            const roleLabelMap = { head: '👑 Head', deputy_head: '🛡️ Deputy Head', founder: '🏛️ Founder', manager: '🧭 Manager', assistant: 'Assistant' };
+            const roleLabelMap = { head: 'Head', deputy_head: 'Deputy Head', founder: 'Founder', manager: 'Manager', assistant: 'Assistant' };
             if (!canEdit) {
                 container.innerHTML = approved.map((user) => {
                     const isSelf = currentUserData.id === user.id;
@@ -1043,7 +1163,7 @@
                         <div class="admin-row">
                             <div class="admin-row-name">${escapeHtml(user.name)}${isSelf ? ' <span style="color:var(--text-muted); font-weight:400;">(ты)</span>' : ''} <span style="color:var(--text-muted); font-weight:400; font-size:12px;">— ${roleLabelMap[user.role] || user.role} · ${user.points || 0} XP</span></div>
                             <div class="admin-row-controls">
-                                <button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">👁 Профиль</button>
+                                <button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">${icon('eye', 14)}<span>Профиль</span></button>
                             </div>
                             ${profileBlock}
                         </div>
@@ -1053,7 +1173,6 @@
             }
             container.innerHTML = approved.map((user) => {
                 const isSelf = currentUserData.id === user.id;
-                const safeName = user.name.replace(/'/g, "\\'");
                 const profileBlock = `
                     <div class="admin-row-profile" id="profile-${user.id}" style="display:none;">
                         <span><b>Email:</b> ${escapeHtml(user.email || '—')}</span>
@@ -1064,7 +1183,7 @@
                         </div>
                     </div>
                 `;
-                const viewBtn = `<button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">👁 Профиль</button>`;
+                const viewBtn = `<button class="view-row-btn" onclick="toggleProfileCard('${user.id}')">${icon('eye', 14)}<span>Профиль</span></button>`;
                 const isLockedRole = user.role === 'head' || user.role === 'founder' || user.role === 'manager';
                 if (isLockedRole && !isCurrentHead) {
                     return `
@@ -1091,8 +1210,8 @@
                                 ${headOnlyOptions}
                             </select>
                             <input type="number" class="points-input" id="points-${user.id}" placeholder="+ баллов">
-                            <button class="save-row-btn" onclick="adminSaveUser('${user.id}')">Сохранить</button>
-                            ${canDelete ? `<button class="delete-row-btn" onclick="adminDeleteUser('${user.id}', '${safeName}')">Удалить</button>` : ''}
+                            <button class="save-row-btn" onclick="adminSaveUser('${user.id}')">${icon('save', 14)}<span>Сохранить</span></button>
+                            ${canDelete ? `<button class="delete-row-btn" onclick="adminDeleteUser('${user.id}')">${icon('trash2', 14)}<span>Удалить</span></button>` : ''}
                             ${viewBtn}
                         </div>
                         ${profileBlock}
@@ -1101,7 +1220,10 @@
             }).join('');
         }
 
-        async function adminApproveUser(userId, userName) {
+        // FIX: resolve name from global map inside handler to avoid quote/escape issues
+        async function adminApproveUser(userId) {
+            const u = window._assistantMap[userId];
+            const userName = u ? u.name : 'пользователь';
             const { error } = await supabaseClient.from('assistants').update({ approved: true }).eq('id', userId);
             if (error) return showToast('Ошибка: ' + error.message, true);
             notifyUser(userId, `Твоя заявка одобрена. Добро пожаловать в команду!`);
@@ -1109,7 +1231,9 @@
             loadAdminPanel();
         }
 
-        async function adminRejectUser(userId, userName) {
+        async function adminRejectUser(userId) {
+            const u = window._assistantMap[userId];
+            const userName = u ? u.name : 'пользователь';
             if (!confirm(`Отклонить заявку «${userName}»? Запись удалится из базы.`)) return;
             const { error } = await supabaseClient.from('assistants').delete().eq('id', userId);
             if (error) return showToast('Ошибка: ' + error.message, true);
@@ -1117,7 +1241,9 @@
             loadAdminPanel();
         }
 
-        async function adminDeleteUser(userId, userName) {
+        async function adminDeleteUser(userId) {
+            const u = window._assistantMap[userId];
+            const userName = u ? u.name : 'пользователь';
             if (!confirm(`Удалить аккаунт «${userName}» из базы навсегда?`)) return;
             const { error: logsErr } = await supabaseClient.from('work_logs').delete().eq('assistant_id', userId);
             if (logsErr) { showToast('Ошибка удаления отчётов: ' + logsErr.message, true); return; }
@@ -1217,7 +1343,10 @@
             loadTasks();
         }
 
-        async function confirmCompletion(taskId, assistantId, assistantName) {
+        // FIX: name is resolved inside via global map
+        async function confirmCompletion(taskId, assistantId) {
+            const a = window._assistantMap[assistantId];
+            const assistantName = a ? a.name : 'ассистент';
             if (!confirm(`Подтвердить выполнение задачи: ${assistantName}?`)) return;
             const { error } = await supabaseClient.from('task_completions').update({
                 confirmed: true, confirmed_by: currentUserData.id, confirmed_at: new Date().toISOString()
@@ -1233,7 +1362,7 @@
             const confirmedNow = (comps || []).filter(c => c.confirmed).length;
             if (totalNeeded > 0 && confirmedNow >= totalNeeded) {
                 await supabaseClient.from('tasks').update({ status: 'done' }).eq('id', taskId);
-                showToast('🎉 Задача полностью закрыта командой!');
+                showToast('Задача полностью закрыта командой!');
             } else {
                 showToast(`Подтверждено для ${assistantName}`);
             }
@@ -1300,20 +1429,21 @@
             const due = task.due_date ? new Date(task.due_date) : null;
             const isOverdue = due && due < today && task.status !== 'done';
             const dueText = task.due_date
-                ? `<span class="task-due ${isOverdue ? 'overdue' : ''}">${isOverdue ? '🔥 Просрочено · ' : '📅 До '}${due.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</span>`
+                ? `<span class="task-due ${isOverdue ? 'overdue' : ''}">${isOverdue ? `${icon('flame', 12)} Просрочено · ` : `${icon('calendar', 12)} До `}${due.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</span>`
                 : '';
             const statusMeta = {
-                todo: { label: 'К выполнению', icon: '⚪️' },
-                in_progress: { label: 'В работе', icon: '🔵' },
-                done: { label: 'Готово', icon: '✅' }
+                todo: { label: 'К выполнению' },
+                in_progress: { label: 'В работе' },
+                done: { label: 'Готово' }
             };
             const status = task.status || 'todo';
             const sm = statusMeta[status] || statusMeta.todo;
+            const dot = `<span class="status-dot"></span>`;
             const statusControl = canEdit
                 ? `<select class="status-select status-${status}" onchange="updateTaskStatus('${task.id}', this.value)">
-                       ${Object.entries(statusMeta).map(([v, m]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${m.icon} ${m.label}</option>`).join('')}
+                       ${Object.entries(statusMeta).map(([v, m]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${m.label}</option>`).join('')}
                    </select>`
-                : `<span class="status-pill status-${status}">${sm.icon} ${sm.label}</span>`;
+                : `<span class="status-pill status-${status}">${dot}${sm.label}</span>`;
             const assigneeNote = task.assigned_to
                 ? `<span class="task-assignee-note">${escapeHtml((assistantMap[task.assigned_to] || {}).name || '?')}</span>`
                 : '';
@@ -1324,7 +1454,7 @@
                 const st = c ? (c.confirmed ? 'confirmed' : 'pending') : 'todo';
                 const label = st === 'confirmed' ? 'подтверждено' : st === 'pending' ? 'на проверке' : 'не начато';
                 const clickable = canEdit && st === 'pending';
-                const onclick = clickable ? `onclick="confirmCompletion('${task.id}','${a.id}','${escapeHtml(a.name).replace(/'/g, "\\'")}')"` : '';
+                const onclick = clickable ? `onclick="confirmCompletion('${task.id}','${a.id}')"` : '';
                 return `<div class="task-avatar ${st} ${clickable ? 'clickable' : ''}" style="background:${avatarColor(a.name)}" title="${escapeHtml(a.name)} — ${label}" ${onclick}>${(a.name || '?').charAt(0).toUpperCase()}</div>`;
             }).join('');
             const progressHtml = total > 0 ? `
@@ -1340,19 +1470,19 @@
             if (amAssignee && isAssistant) {
                 const mine = compMap[myId];
                 if (!mine) {
-                    myControl = `<button class="task-mark-btn" onclick="submitMyCompletion('${task.id}')">✓ Отметить выполненной</button>`;
+                    myControl = `<button class="task-mark-btn" onclick="submitMyCompletion('${task.id}')">${icon('check', 14)}<span>Отметить выполненной</span></button>`;
                 } else if (!mine.confirmed) {
-                    myControl = `<div class="task-pending-note">⏳ На проверке у руководителя <button class="task-cancel-btn" onclick="cancelMyCompletion('${task.id}')">отменить</button></div>`;
+                    myControl = `<div class="task-pending-note">${icon('clock', 12)}<span>На проверке у руководителя</span><button class="task-cancel-btn" onclick="cancelMyCompletion('${task.id}')">отменить</button></div>`;
                 } else {
-                    myControl = `<div class="task-confirmed-note">✅ Подтверждено</div>`;
+                    myControl = `<div class="task-confirmed-note">${icon('checkCircle', 14)}<span>Подтверждено</span></div>`;
                 }
             }
             const commentCount = task._commentCount || 0;
-            const commentLabel = commentCount > 0 ? `💬 ${commentCount}` : '💬 Комментировать';
+            const commentLabel = commentCount > 0 ? `${icon('messageCircle', 13)}<span>${commentCount}</span>` : `${icon('messageCircle', 13)}<span>Комментировать</span>`;
             const commentInputRow = isViewerRole ? '' : `
                 <div class="comment-input-row">
-                    <input type="text" class="comment-input" id="comment-input-${task.id}" placeholder="Написать комментарий...">
-                    <button class="comment-send-btn" onclick="postComment('${task.id}')">➤</button>
+                    <input type="text" class="comment-input" id="comment-input-${task.id}" placeholder="Написать комментарий..." onkeydown="if(event.key==='Enter'){event.preventDefault();postComment('${task.id}');}">
+                    <button class="comment-send-btn" onclick="postComment('${task.id}')">${ICONS.send(16)}</button>
                 </div>
             `;
             return `
@@ -1367,7 +1497,7 @@
                     ${myControl}
                     <div class="task-footer">
                         <button class="comments-toggle-btn" onclick="toggleComments('${task.id}')">${commentLabel}</button>
-                        ${canEdit ? `<button class="delete-row-btn" onclick="deleteTask('${task.id}')">Удалить</button>` : ''}
+                        ${canEdit ? `<button class="delete-row-btn" onclick="deleteTask('${task.id}')">${icon('trash2', 14)}<span>Удалить</span></button>` : ''}
                     </div>
                     <div class="task-comments" id="comments-${task.id}" style="display:none;">
                         <div class="comments-list" id="comments-list-${task.id}"></div>
@@ -1400,14 +1530,16 @@
             const allAssistants = assistantsRes.data || [];
             const completions = completionsRes.data || [];
             const comments = commentsRes.data || [];
+            // Populate global map for safe onclick handlers
+            allAssistants.forEach(a => { window._assistantMap[a.id] = a; });
             if (tasks.length === 0) {
                 const canCreate = currentUserData.role === 'head' || currentUserData.role === 'deputy_head';
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">✅</div>
+                        <div class="empty-icon">${ICONS.listTodo(42)}</div>
                         <div class="empty-title">Задач пока нет</div>
                         <div class="empty-desc">${canCreate ? 'Создай первую задачу — общую для всех или личную для конкретного ассистента.' : 'Можешь расслабиться — новые задачи появятся здесь, как только их создаст руководитель.'}</div>
-                        ${canCreate ? `<button class="btn-primary" onclick="toggleTaskEditor()">+ Новая задача</button>` : ''}
+                        ${canCreate ? `<button class="btn-primary" style="display:inline-flex; align-items:center; gap:6px;" onclick="toggleTaskEditor()">${icon('plus', 16)}<span>Новая задача</span></button>` : ''}
                     </div>`;
                 return;
             }
@@ -1428,11 +1560,11 @@
             const personalTasks = activeTasks.filter(t => t.assigned_to);
             let html = '';
             if (generalTasks.length > 0) {
-                html += `<div class="tasks-section-title">🌍 Общие задачи</div>`;
+                html += `<div class="tasks-section-title">${icon('globe', 14)}<span>Общие задачи</span></div>`;
                 html += generalTasks.map(t => renderTaskCard(t, onlyAssistants, compByTask[t.id] || {}, assistantMap)).join('');
             }
             if (personalTasks.length > 0) {
-                html += `<div class="tasks-section-title">👤 Личные задачи</div>`;
+                html += `<div class="tasks-section-title">${icon('user', 14)}<span>Личные задачи</span></div>`;
                 html += personalTasks.map(t => {
                     const a = assistantMap[t.assigned_to];
                     return renderTaskCard(t, a ? [a] : [], compByTask[t.id] || {}, assistantMap);
@@ -1441,7 +1573,8 @@
             if (doneTasks.length > 0) {
                 html += `
                     <div class="tasks-done-toggle" onclick="toggleDoneTasks()">
-                        <span id="done-toggle-icon">▸</span> ✅ Выполненные (${doneTasks.length})
+                        <span id="done-toggle-icon">${ICONS.chevronRight(12)}</span>
+                        ${icon('checkCircle', 13)}<span>Выполненные (${doneTasks.length})</span>
                     </div>
                     <div class="tasks-done-list" id="tasks-done-list" style="display:none;">
                         ${doneTasks.map(t => {
@@ -1456,10 +1589,10 @@
 
         function toggleDoneTasks() {
             const list = document.getElementById('tasks-done-list');
-            const icon = document.getElementById('done-toggle-icon');
+            const iconEl = document.getElementById('done-toggle-icon');
             const opening = list.style.display === 'none';
             list.style.display = opening ? 'block' : 'none';
-            icon.innerText = opening ? '▾' : '▸';
+            iconEl.innerHTML = opening ? ICONS.chevronDown(12) : ICONS.chevronRight(12);
         }
 
         const LOGS_PAGE_SIZE = 15;
@@ -1493,7 +1626,7 @@
             } else if (!logsRes.data || logsRes.data.length === 0) {
                 feedEl.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">🧾</div>
+                        <div class="empty-icon">${ICONS.fileText(42)}</div>
                         <div class="empty-title">Отчётов пока нет</div>
                         <div class="empty-desc">Записи появятся здесь, как только ассистенты начнут отправлять отчёты по задачам.</div>
                         <button class="btn-primary" onclick="switchTab('workspace-tab')">Перейти к форме отчёта</button>
@@ -1503,7 +1636,10 @@
                     <div class="log-row">
                         <div>
                             <div class="log-row-title">${escapeHtml(l.assistant_name)} — ${escapeHtml(l.task_type)}</div>
-                            <div class="log-row-meta">${timeAgo(l.created_at)}${l.proof_url ? ` · <a href="${escapeHtml(l.proof_url)}" target="_blank">доказательство</a>` : ''}</div>
+                            <div class="log-row-meta">
+                                <span>${timeAgo(l.created_at)}</span>
+                                ${l.proof_url ? ` · <a href="${escapeHtml(l.proof_url)}" target="_blank" rel="noopener">${icon('link', 10)}<span>доказательство</span></a>` : ''}
+                            </div>
                         </div>
                         <span class="points-badge">+${l.points_awarded || 0} XP</span>
                     </div>
@@ -1511,15 +1647,19 @@
             }
             renderLogsPagination(logsRes.count || 0, page);
             const compByTask = {};
-            (compRes.data || []).forEach(c => { compByTask[c.task_id] = c; });
+            (compRes.data || []).forEach(c => {
+                if (!compByTask[c.task_id]) compByTask[c.task_id] = [];
+                compByTask[c.task_id].push(c);
+            });
             const personalTasks = tasksRes.data || [];
             overviewEl.innerHTML = (assistantsRes.data || []).map(a => {
                 const theirTasks = personalTasks.filter(t => t.assigned_to === a.id);
                 const taskRows = theirTasks.length
                     ? theirTasks.map(t => {
-                        const c = compByTask[t.id];
-                        const icon = c ? (c.confirmed ? '✅' : '⏳') : '◻️';
-                        return `<div class="log-task-item">${icon} ${escapeHtml(t.title)}</div>`;
+                        const comps = compByTask[t.id] || [];
+                        const mine = comps.find(c => c.assistant_id === a.id);
+                        const iconSvg = mine ? (mine.confirmed ? ICONS.checkCircle(12) : ICONS.clock(12)) : ICONS.listChecks(12);
+                        return `<div class="log-task-item"><span class="icon-svg" style="width:12px; height:12px; color: ${mine ? (mine.confirmed ? 'var(--role-manager)' : '#ff9f0a') : 'var(--text-muted)'};">${iconSvg}</span><span>${escapeHtml(t.title)}</span></div>`;
                     }).join('')
                     : `<div class="log-task-item" style="color:var(--text-muted);">нет личных задач</div>`;
                 return `
@@ -1592,18 +1732,6 @@
             }
         }, 8000);
 
-        let emojiParsePending = false;
-        function refreshEmoji() {
-            if (typeof twemoji === 'undefined') return;
-            twemoji.parse(document.body);
-        }
-        const emojiObserver = new MutationObserver(() => {
-            if (emojiParsePending) return;
-            emojiParsePending = true;
-            requestAnimationFrame(() => { refreshEmoji(); emojiParsePending = false; });
-        });
-        emojiObserver.observe(document.body, { childList: true, subtree: true });
-        refreshEmoji();
         checkSession();
     </script>
 </body>
