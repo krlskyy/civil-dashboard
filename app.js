@@ -127,14 +127,41 @@
             return chartLoadPromise;
         }
 
-        /* ========== OFFLINE SUPPORT ========== */
+        /* ========== OFFLINE SUPPORT ==========
+           На мобильных браузерах событие 'offline' иногда срабатывает ложно
+           (например, при кратком переключении Wi-Fi/LTE), и тогда баннер
+           застревает навсегда, потому что повторного 'online' не происходит.
+           Поэтому событие 'offline' только подсвечивает баннер, но перед
+           этим подтверждается реальной попыткой достучаться до Supabase —
+           и баннер автоматически проверяется и снимается, если связь на
+           самом деле есть. */
+        let offlineCheckTimer = null;
+
+        async function reallyOffline() {
+            try {
+                await fetch(`${SUPABASE_URL}/auth/v1/health`, { method: 'GET', cache: 'no-store', mode: 'no-cors' });
+                return false;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        async function refreshOfflineBanner() {
+            const banner = document.getElementById('offline-banner');
+            const offline = await reallyOffline();
+            banner.classList.toggle('show', offline);
+        }
+
         window.addEventListener('online', () => {
             document.getElementById('offline-banner').classList.remove('show');
             retryQueuedLogs();
         });
         window.addEventListener('offline', () => {
-            document.getElementById('offline-banner').classList.add('show');
+            // Не доверяем событию напрямую — перепроверяем реальную доступность
+            refreshOfflineBanner();
         });
+        // Перепроверяем раз в 20 секунд на случай залипшего состояния
+        offlineCheckTimer = setInterval(refreshOfflineBanner, 20000);
 
         async function retryQueuedLogs() {
             try {
