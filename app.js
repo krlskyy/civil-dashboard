@@ -873,8 +873,10 @@
             const u = window._assistantMap[userId];
             const userName = u ? u.name : 'пользователь';
             if (!confirm(`Удалить аккаунт «${userName}» из базы навсегда?`)) return;
-            const { error: logsErr } = await supabaseClient.from('work_logs').delete().eq('assistant_id', userId);
-            if (logsErr) { showToast('Ошибка удаления отчётов: ' + logsErr.message, true); return; }
+            // Связанные таблицы обрабатываются на уровне БД через FK ON DELETE:
+            // work_logs / task_completions / notifications удаляются каскадно,
+            // task_comments.author_id и tasks.assigned_to/created_by становятся
+            // NULL ("удалённый ассистент"), а не блокируют удаление.
             const { error } = await supabaseClient.from('assistants').delete().eq('id', userId);
             if (error) { showToast('Ошибка удаления: ' + error.message, true); return; }
             showToast(`Аккаунт «${userName}» удалён`);
@@ -1024,7 +1026,7 @@
                 return;
             }
             listEl.innerHTML = comments.map(c => {
-                const name = nameMap[c.author_id] || 'Неизвестный';
+                const name = nameMap[c.author_id] || 'Удалённый ассистент';
                 return `
                     <div class="comment-item">
                         <div class="comment-avatar" style="background:${avatarColor(name)}">${name.charAt(0).toUpperCase()}</div>
