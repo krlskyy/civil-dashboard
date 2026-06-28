@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Civil Team | Workspace</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C81E4D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="offline-banner" id="offline-banner">
+        <span class="icon-svg" style="width:14px;height:14px;" id="offline-icon"></span>
+        <span>Нет связи — работаем офлайн</span>
+    </div>
+
+    <div id="toast">Уведомление</div>
+
+    <div id="loading-view" class="screen active">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div id="auth-view" class="screen">
+        <div class="auth-card">
+            <div class="auth-logo" id="auth-logo-icon"></div>
+            <h2 class="auth-title" id="auth-title">Вход в Workspace</h2>
+            <p class="auth-subtitle" id="auth-subtitle">Войди под своим игровым ником</p>
+            <form id="auth-form">
+                <div class="form-group">
+                    <label>Игровой никнейм</label>
+                    <input type="text" id="auth-name" class="form-control" placeholder="Без пробелов и спецсимволов" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="auth-pass" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                    <div class="pass-strength" id="pass-strength-container" style="display:none;">
+                        <div class="pass-strength-bar" id="pass-bar"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" id="auth-btn">Войти</button>
+            </form>
+            <div class="auth-switch">
+                <p id="auth-toggle-text">Впервые тут? <span onclick="toggleAuthMode()">Создать аккаунт</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="pending-view" class="screen">
+        <div class="auth-card" style="text-align: center;">
+            <div class="auth-logo" id="pending-logo-icon" style="background: var(--role-deputy); box-shadow: 0 4px 12px rgba(181,121,58,0.25);"></div>
+            <h2 class="auth-title">Заявка на рассмотрении</h2>
+            <p class="auth-subtitle">Доступ к команде Civil выдаёт руководство вручную. Заявка отправлена — дождись подтверждения, потом просто зайди ещё раз.</p>
+            <button class="btn-secondary" style="margin-top: 8px;" onclick="checkSession()">Проверить ещё раз</button>
+            <button class="btn-primary" style="background: transparent; color: var(--danger); border: 1px solid rgba(229,72,77,0.25); margin-top: 8px;" onclick="logOut()">Выйти</button>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="screen">
+        <div class="mobile-topbar">
+            <div class="brand" id="mobile-brand"></div>
+            <button class="notif-bell" onclick="toggleNotifications(this)" id="mobile-notif-bell">
+                <span class="notif-badge">0</span>
+            </button>
+        </div>
+        <div class="app-shell">
+            <aside class="sidebar">
+                <div class="sidebar-top">
+                    <div class="brand" id="sidebar-brand"></div>
+                    <button class="notif-bell" onclick="toggleNotifications(this)" id="sidebar-notif-bell">
+                        <span class="notif-badge">0</span>
+                    </button>
+                </div>
+                <nav class="sidebar-nav" id="sidebar-nav"></nav>
+                <div class="sidebar-footer">
+                    <button class="nav-link" onclick="logOut()" id="logout-link"></button>
+                </div>
+            </aside>
+            <main class="main-content">
+                <div class="content-header">
+                    <div class="greeting">
+                        <span id="current-user-name">Загрузка...</span>
+                        <span id="head-crown-badge" class="head-crown"></span>
+                    </div>
+                </div>
+                <div class="stats-grid stagger" id="stats-grid">
+                    <div class="stat-box" style="--i:0">
+                        <p>Твоя активность</p>
+                        <h3 id="stat-xp">0 XP</h3>
+                    </div>
+                    <div class="stat-box" style="--i:1">
+                        <p>Внесено отчётов</p>
+                        <h3 id="stat-tasks">0</h3>
+                    </div>
+                    <div class="stat-box role-box" id="role-stat-box" style="--i:2">
+                        <p>Должность</p>
+                        <h3 id="user-role-display" style="color: var(--accent-hover); font-size: 13px; margin-top: 6px; font-weight: 500;">Loading...</h3>
+                    </div>
+                </div>
+
+                <div id="workspace-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-title" id="ct-xp-history"></div>
+                        <div class="xp-chart-wrap" id="xp-chart-wrap-self" style="height:180px;">
+                            <div class="xp-chart-loading"><div class="skel"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="analytics-card">
+                        <div class="card-title" id="ct-analytics"></div>
+                        <div class="heatmap-wrap" id="heatmap-wrap">
+                            <div class="skel" style="height:100px; width:100%;"></div>
+                        </div>
+                        <div class="heatmap-legend" id="heatmap-legend">
+                            <span>Меньше</span>
+                            <div class="heatmap-legend-cell" style="background:var(--bg-surface-raised);"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(200,30,77,0.2);"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(200,30,77,0.45);"></div>
+                            <div class="heatmap-legend-cell" style="background:rgba(200,30,77,0.75);"></div>
+                            <div class="heatmap-legend-cell" style="background:var(--accent);"></div>
+                            <span>Больше</span>
+                        </div>
+                        <div class="analytics-grid">
+                            <div class="mini-chart-wrap">
+                                <div class="mini-chart-head">
+                                    <span class="mini-chart-title">Velocity (30 дн.)</span>
+                                    <span class="mini-chart-trend" id="velocity-trend"></span>
+                                </div>
+                                <div class="mini-chart-value" id="velocity-value">0 XP</div>
+                                <div class="mini-chart-body" id="velocity-chart"></div>
+                            </div>
+                            <div class="mini-chart-wrap">
+                                <div class="mini-chart-head">
+                                    <span class="mini-chart-title">Burn-down (задачи)</span>
+                                    <span class="mini-chart-trend" id="burndown-trend"></span>
+                                </div>
+                                <div class="mini-chart-value" id="burndown-value">0 / 0</div>
+                                <div class="mini-chart-body" id="burndown-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout">
+                        <div>
+                            <div class="card">
+                                <div class="card-title" id="ct-register-log"></div>
+                                <form id="work-form">
+                                    <div class="form-group">
+                                        <label>Тип выполненной задачи</label>
+                                        <select class="form-control" id="task-select" required>
+                                            <option value="10">Взял топик под свою слежку (+10 XP)</option>
+                                            <option value="25">Провёл игровое мероприятие (+25 XP)</option>
+                                            <option value="15">Обработал заявку (гранты, поощрения, бизнес) (+15 XP)</option>
+                                            <option value="30">Помог игроку с поддержкой его организации (+30 XP)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ссылка на доказательства</label>
+                                        <input type="url" id="proof-url" class="form-control" placeholder="https://bw-p.ru/..." required>
+                                    </div>
+                                    <button type="submit" class="btn-primary" id="submit-log-btn">Отправить в реестр</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="card">
+                                <div class="card-title" id="ct-monitoring"></div>
+                                <table class="leaderboard-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;">#</th>
+                                            <th>Ассистент</th>
+                                            <th>Задачи</th>
+                                            <th style="text-align: right;">Баллы</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="leaderboard-data">
+                                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">Синхронизация...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tasks-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-title" id="ct-tasks"></div>
+                        <div id="task-editor-toggle-wrap" style="display:none; margin-bottom: 14px;">
+                            <button class="btn-primary" style="width:auto; padding:8px 14px; margin-top:0;" onclick="toggleTaskEditor()" id="new-task-btn"></button>
+                            <div class="task-editor" id="task-editor" style="display:none;">
+                                <input type="text" class="form-control" id="task-title-input" placeholder="Название задачи" maxlength="200">
+                                <textarea class="form-control" id="task-desc-input" placeholder="Описание (необязательно)" rows="3" style="resize:vertical;"></textarea>
+                                <div class="task-editor-row">
+                                    <input type="date" class="form-control" id="task-due-input">
+                                    <select class="form-control" id="task-assignee-select">
+                                        <option value="">Общая задача — видна всем</option>
+                                    </select>
+                                </div>
+                                <button class="btn-primary" style="margin-top:0;" onclick="createTask()">Создать задачу</button>
+                            </div>
+                        </div>
+                        <div id="tasks-list">
+                            <p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 12px;">Загрузка...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-tab" class="tab-content">
+                    <div class="card" style="max-width: 600px;">
+                        <div class="card-title" id="ct-settings"></div>
+                        <div class="settings-list">
+                            <div class="settings-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                                <div class="settings-info">
+                                    <h4 id="settings-password-title"></h4>
+                                    <p>Минимум 8 символов, нужны буквы и цифры.</p>
+                                </div>
+                                <form id="password-form" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <input type="password" id="new-password" class="form-control" placeholder="Новый пароль" required>
+                                    <button type="submit" class="btn-primary" style="margin-top: 0;">Сменить пароль</button>
+                                </form>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-info">
+                                    <h4 id="settings-refresh-title"></h4>
+                                    <p>Подтянуть актуальные данные без перезахода.</p>
+                                </div>
+                                <button class="btn-secondary" onclick="checkSession()">Обновить</button>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-info">
+                                    <h4 id="settings-security-title"></h4>
+                                    <p>Шифрование JWT через Supabase.</p>
+                                </div>
+                            </div>
+                            <button class="btn-primary" style="background: transparent; color: var(--danger); border: 1px solid rgba(229,72,77,0.25); margin-top: 16px;" onclick="logOut()" id="settings-logout-btn"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-tab" class="tab-content">
+                    <div class="card" id="pending-approvals-card" style="display:none;">
+                        <div class="card-title" id="ct-pending-approvals"></div>
+                        <div id="pending-approvals-list" class="admin-list"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" id="ct-admin-manage"></div>
+                        <div id="admin-data" class="admin-list">
+                            <p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 12px;">Загрузка...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="logs-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-title" id="ct-logs-feed"></div>
+                        <div id="logs-feed">
+                            <p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 12px;">Загрузка...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" id="ct-personal-tasks"></div>
+                        <div id="personal-tasks-overview">
+                            <p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 12px;">Загрузка...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Вкладка управления итогами (Results) -->
+                <div id="results-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-title" id="ct-results-manage"></div>
+                        <div id="result-editor-toggle-wrap" style="margin-bottom: 14px;">
+                            <button class="btn-primary" style="width:auto; padding:8px 14px; margin-top:0;" onclick="toggleResultEditor(true)" id="new-result-btn"></button>
+                        </div>
+                        
+                        <!-- Форма редактирования -->
+                        <div class="task-editor" id="result-editor" style="display:none; gap: 16px;">
+                            <div class="form-group">
+                                <label>ID (Понедельник недели, формат YYYY-MM-DD)</label>
+                                <input type="text" class="form-control" id="res-id" placeholder="2026-06-15" required>
+                            </div>
+                            <div class="task-editor-row">
+                                <div class="form-group"><label>Период (Текст)</label><input type="text" class="form-control" id="res-period" placeholder="15 июня — 22 июня 2026" required></div>
+                                <div class="form-group"><label>Ранг сегмента (необяз.)</label><input type="text" class="form-control" id="res-rank" placeholder="№1"></div>
+                            </div>
+                            <div class="task-editor-row">
+                                <div class="form-group"><label>Бюджет сегмента (BWC)</label><input type="number" class="form-control" id="res-budget" value="0"></div>
+                                <div class="form-group"><label>Макс. на ассистента</label><input type="number" class="form-control" id="res-max" value="0"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Краткая сводка (Summary)</label>
+                                <textarea class="form-control" id="res-summary" rows="2" style="resize:vertical;"></textarea>
+                            </div>
+                            
+                            <div style="border-top: 1px solid var(--border-soft); padding-top: 12px;">
+                                <label style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">Кадровые изменения</label>
+                                <textarea class="form-control" id="res-pers-text" rows="2" placeholder="Текст о кадрах (необязательно)" style="margin-bottom: 8px;"></textarea>
+                                <input type="text" class="form-control" id="res-pers-note" placeholder="Заметка (Note)">
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border-soft); padding-top: 12px;" id="dyn-workspace-wrap">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); font-weight: 500; margin:0;">Workspace Статистика</label>
+                                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="addResultStat()">+ Стата</button>
+                                </div>
+                                <div id="dyn-workspace-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border-soft); padding-top: 12px;" id="dyn-gameplay-wrap">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); font-weight: 500; margin:0;">Игровая часть (Gameplay)</label>
+                                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="addResultGameplay()">+ Пункт</button>
+                                </div>
+                                <div id="dyn-gameplay-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border-soft); padding-top: 12px;" id="dyn-assistants-wrap">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); font-weight: 500; margin:0;">Ассистенты</label>
+                                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="addResultAssistant()">+ Ассистент</button>
+                                </div>
+                                <div id="dyn-assistants-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border-soft); padding-top: 12px; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="res-is-current" style="width: 16px; height: 16px; accent-color: var(--accent);">
+                                <label for="res-is-current" style="font-size: 13px; color: var(--text-primary); font-weight: 500; cursor:pointer;">Актуальные итоги (Отображать на главной)</label>
+                            </div>
+
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn-primary" onclick="saveWeeklyResult()" id="save-result-btn">Сохранить итоги</button>
+                                <button class="btn-secondary" onclick="toggleResultEditor(true)">Отмена</button>
+                            </div>
+                        </div>
+
+                        <!-- Список итогов -->
+                        <div id="results-admin-list" class="admin-list" style="margin-top: 20px;">
+                            <p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 12px;">Загрузка...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+        <nav class="bottom-nav" id="bottom-nav"></nav>
+    </div>
+
+    <div class="notif-dropdown" id="notif-dropdown">
+        <div class="notif-dropdown-title">Уведомления</div>
+        <div id="notif-list"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
