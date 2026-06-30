@@ -976,14 +976,137 @@
             loadTasks();
         }
 
-        async function submitMyCompletion(taskId) {
-            const { error } = await supabaseClient.from('task_completions').upsert(
-                { task_id: taskId, assistant_id: currentUserData.id, submitted_at: new Date().toISOString(), confirmed: false },
-                { onConflict: 'task_id,assistant_id' }
-            );
-            if (error) return showToast('Ошибка: ' + error.message, true);
-            showToast('Отправлено на проверку');
-            loadTasks();
+        /* ========== ОТЧЁТ О ВЫПОЛНЕНИИ ЗАДАЧИ ========== */
+        let reportModalTaskId = null;
+        let reportPendingFiles = []; // [{file, name, size, status: 'pending'|'uploading'|'done'|'error', url}]
+
+        document.getElementById('report-modal-close-icon').innerHTML = icon('x', 16);
+        document.getElementById('report-dz-icon').innerHTML = icon('clipboardPlus', 22);
+
+        function openReportModal(taskId) {
+            reportModalTaskId = taskId;
+            reportPendingFiles = [];
+            document.getElementById('report-text-input').value = '';
+            renderReportFileList();
+            document.getElementById('report-modal-overlay').classList.add('open');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('report-modal-overlay').classList.contains('open')) {
+                closeReportModal();
+            }
+        });
+
+        function closeReportModal() {
+            document.getElementById('report-modal-overlay').classList.remove('open');
+            reportModalTaskId = null;
+            reportPendingFiles = [];
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' Б';
+            if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' КБ';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+        }
+
+        function renderReportFileList() {
+            const listEl = document.getElementById('report-file-list');
+            listEl.innerHTML = reportPendingFiles.map((f, i) => `
+                <div class="report-file-item ${f.status === 'uploading' ? 'uploading' : ''}">
+                    <span class="rf-icon">${icon('fileText', 14)}</span>
+                    <span class="rf-name">${escapeHtml(f.name)}</span>
+                    <span class="rf-size">${f.status === 'uploading' ? 'загрузка…' : f.status === 'error' ? 'ошибка' : formatFileSize(f.size)}</span>
+                    <button class="rf-remove" onclick="removeReportFile(${i})">${icon('x', 12)}</button>
+                </div>
+            `).join('');
+        }
+
+        function removeReportFile(i) {
+            reportPendingFiles.splice(i, 1);
+            renderReportFileList();
+        }
+
+        document.getElementById('report-file-input').addEventListener('change', (e) => {
+            handleReportFiles(Array.from(e.target.files));
+            e.target.value = '';
+        });
+
+        const reportDropzone = document.getElementById('report-dropzone');
+        ['dragenter', 'dragover'].forEach(evt => {
+            reportDropzone.addEventListener(evt, (e) => { e.preventDefault(); reportDropzone.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            reportDropzone.addEventListener(evt, (e) => { e.preventDefault(); reportDropzone.classList.remove('dragover'); });
+        });
+        reportDropzone.addEventListener('drop', (e) => {
+            handleReportFiles(Array.from(e.dataTransfer.files || []));
+        });
+
+        const MAX_REPORT_FILE_SIZE = 10 * 1024 * 1024; // 10 МБ
+
+        function handleReportFiles(files) {
+            for (const file of files) {
+                if (file.size > MAX_REPORT_FILE_SIZE) {
+                    showToast(`«${file.name}» больше 10 МБ — пропущен`, true);
+                    continue;
+                }
+                reportPendingFiles.push({ file, name: file.name, size: file.size, status: 'pending', url: null });
+            }
+            renderReportFileList();
+        }
+
+        async function uploadReportFiles(taskId) {
+            const uploaded = [];
+            for (const f of reportPendingFiles) {
+                f.status = 'uploading';
+                renderReportFileList();
+                const ext = (f.name.split('.').pop() || 'bin').toLowerCase();
+                const safeBase = f.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 60);
+                const path = `${currentUserData.id}/${taskId}/${Date.now()}_${safeBase}`;
+                const { error } = await supabaseClient.storage.from('task-reports').upload(path, f.file, {
+                    cacheControl: '3600', upsert: false
+                });
+                if (error) {
+                    f.status = 'error';
+                    renderReportFileList();
+                    throw new Error(`Не удалось загрузить «${f.name}»: ${error.message}`);
+                }
+                const { data: pub } = supabaseClient.storage.from('task-reports').getPublicUrl(path);
+                f.status = 'done';
+                uploaded.push({ name: f.name, url: pub.publicUrl, size: f.size });
+            }
+            return uploaded;
+        }
+
+        async function submitTaskReport() {
+            if (!reportModalTaskId) return;
+            const btn = document.getElementById('report-submit-btn');
+            const reportText = document.getElementById('report-text-input').value.trim();
+            btn.disabled = true;
+            btn.innerText = 'Отправка...';
+            try {
+                const files = reportPendingFiles.length ? await uploadReportFiles(reportModalTaskId) : [];
+                const { error } = await supabaseClient.from('task_completions').upsert(
+                    {
+                        task_id: reportModalTaskId,
+                        assistant_id: currentUserData.id,
+                        submitted_at: new Date().toISOString(),
+                        confirmed: false,
+                        report_text: reportText || null,
+                        report_files: files
+                    },
+                    { onConflict: 'task_id,assistant_id' }
+                );
+                if (error) throw error;
+                showToast('Отчёт отправлен на проверку');
+                closeReportModal();
+                loadTasks();
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, true);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Отправить на проверку';
+            }
         }
 
         async function cancelMyCompletion(taskId) {
@@ -1069,6 +1192,20 @@
             loadComments(taskId);
         }
 
+        function renderReportView(completion, assistant) {
+            if (!completion || (!completion.report_text && !(completion.report_files || []).length)) return '';
+            const files = completion.report_files || [];
+            const authorLabel = assistant ? `${icon('user', 11)}<span>Отчёт — ${escapeHtml(assistant.name)}</span>` : `${icon('fileText', 11)}<span>Отчёт</span>`;
+            return `
+                <div class="task-report-view">
+                    <div class="trv-label">${authorLabel}</div>
+                    ${completion.report_text ? `<div class="trv-text">${escapeHtml(completion.report_text)}</div>` : ''}
+                    ${files.length ? `<div class="trv-files">${files.map(f => `
+                        <a class="trv-file-link" href="${escapeHtml(f.url)}" target="_blank" rel="noopener noreferrer">${icon('link', 11)}<span>${escapeHtml(f.name)}</span></a>
+                    `).join('')}</div>` : ''}
+                </div>`;
+        }
+
         function renderTaskCard(task, assignees, compMap, assistantMap) {
             const role = currentUserData.role;
             const canEdit = role === 'head' || role === 'deputy_head';
@@ -1119,12 +1256,19 @@
             if (amAssignee && isAssistant) {
                 const mine = compMap[myId];
                 if (!mine) {
-                    myControl = `<button class="task-mark-btn" onclick="submitMyCompletion('${task.id}')">${icon('check', 12)}<span>Отметить выполненной</span></button>`;
+                    myControl = `<button class="task-mark-btn" onclick="openReportModal('${task.id}')">${icon('check', 12)}<span>Отметить выполненной</span></button>`;
                 } else if (!mine.confirmed) {
-                    myControl = `<div class="task-pending-note">${icon('clock', 11)}<span>На проверке</span><button class="task-cancel-btn" onclick="cancelMyCompletion('${task.id}')">отменить</button></div>`;
+                    myControl = `<div class="task-pending-note">${icon('clock', 11)}<span>На проверке</span><button class="task-cancel-btn" onclick="cancelMyCompletion('${task.id}')">отменить</button></div>${renderReportView(mine)}`;
                 } else {
-                    myControl = `<div class="task-confirmed-note">${icon('checkCircle', 12)}<span>Подтверждено</span></div>`;
+                    myControl = `<div class="task-confirmed-note">${icon('checkCircle', 12)}<span>Подтверждено</span></div>${renderReportView(mine)}`;
                 }
+            } else if (canEdit) {
+                // Head/Deputy видят отчёты всех исполнителей под задачей, не только своей
+                const reportsHtml = assignees
+                    .map(a => compMap[a.id])
+                    .filter(c => c && (c.report_text || (c.report_files && c.report_files.length)))
+                    .map(c => renderReportView(c, assistantMap[c.assistant_id])).join('');
+                if (reportsHtml) myControl = reportsHtml;
             }
             const commentCount = task._commentCount || 0;
             const commentLabel = commentCount > 0 ? `${icon('messageCircle', 12)}<span>${commentCount}</span>` : `${icon('messageCircle', 12)}<span>Комментировать</span>`;
