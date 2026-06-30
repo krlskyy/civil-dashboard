@@ -353,6 +353,33 @@
         <div id="notif-list"></div>
     </div>
 
+    <!-- Модалка отчёта о выполнении задачи -->
+    <div class="modal-overlay" id="report-modal-overlay" onclick="if(event.target===this) closeReportModal()">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeReportModal()" id="report-modal-close-icon"></button>
+            <h3 id="report-modal-title">Отчёт о выполнении</h3>
+            <p class="modal-sub" id="report-modal-sub">Опиши, что сделано, и приложи доказательства — скрины или файлы.</p>
+
+            <div class="form-group">
+                <label id="report-text-label">Комментарий к отчёту</label>
+                <textarea class="form-control" id="report-text-input" rows="4" placeholder="Что сделано, какие результаты..." style="resize:vertical;"></textarea>
+            </div>
+
+            <div id="report-dropzone" class="report-dropzone" onclick="document.getElementById('report-file-input').click()">
+                <div class="dz-icon" id="report-dz-icon"></div>
+                <div class="dz-text" id="report-dz-text">Прикрепить файлы</div>
+                <div class="dz-hint">Нажми или перетащи сюда — изображения, документы, до 10 МБ каждый</div>
+            </div>
+            <input type="file" id="report-file-input" multiple style="display:none;" accept="image/*,.pdf,.doc,.docx,.txt">
+            <div class="report-file-list" id="report-file-list"></div>
+
+            <div class="report-submit-row">
+                <button class="btn-primary" id="report-submit-btn" onclick="submitTaskReport()">Отправить на проверку</button>
+                <button class="btn-secondary" onclick="closeReportModal()" id="report-cancel-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
